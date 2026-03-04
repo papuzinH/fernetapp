@@ -13,11 +13,12 @@ export default function AdminPage() {
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="bg-stripes rounded-xl p-6 border border-border/40">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-primary" />
+              <CalendarDays className="h-5 w-5 text-accent" />
               Partidos
             </CardTitle>
             <CardDescription>
@@ -41,7 +42,7 @@ export default function AdminPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
+              <Users className="h-5 w-5 text-accent" />
               Jugadores
             </CardTitle>
             <CardDescription>
@@ -65,7 +66,7 @@ export default function AdminPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-primary" />
+              <Trophy className="h-5 w-5 text-accent" />
               Torneos
             </CardTitle>
             <CardDescription>
@@ -80,6 +81,7 @@ export default function AdminPage() {
             </Link>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );

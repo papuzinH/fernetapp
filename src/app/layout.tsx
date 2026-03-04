@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Kanit, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
+import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const kanit = Kanit({
+  variable: "--font-kanit",
   subsets: ["latin"],
+  weight: ["400", "600", "700", "900"],
+  style: ["normal", "italic"],
 });
 
 const geistMono = Geist_Mono({
@@ -27,15 +30,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+        className={`${kanit.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <TooltipProvider>
-          <Navbar />
-          <main className="min-h-[calc(100vh-4rem)]">{children}</main>
-          <Toaster richColors position="top-right" />
-        </TooltipProvider>
+        <Providers>
+          <TooltipProvider>
+            <Navbar />
+            <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+            <Toaster richColors position="top-right" />
+          </TooltipProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -65,14 +65,16 @@ export default async function DashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Beer className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Fernet con Guaymallén
-          </h1>
-          <p className="text-muted-foreground">Historial Fernetero</p>
+      {/* Header con gradiente Deep Navy */}
+      <div className="bg-header-gradient rounded-xl px-6 py-7 text-white">
+        <div className="flex items-center gap-3">
+          <Beer className="h-8 w-8 text-accent" />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Fernet con Guaymallén
+            </h1>
+            <p className="text-white/60">Historial Fernetero</p>
+          </div>
         </div>
       </div>
 
@@ -155,9 +157,9 @@ export default async function DashboardPage() {
       )}
 
       {/* Salón de la Fama */}
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight mb-4 flex items-center gap-2">
-          <Trophy className="h-6 w-6 text-primary" />
+      <div className="bg-stripes rounded-xl p-6 border border-border/40 space-y-4">
+        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+          <Trophy className="h-6 w-6 text-accent" />
           Salón de la Fama
         </h2>
 
@@ -166,7 +168,7 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-primary" />
+                <Target className="h-5 w-5 text-accent" />
                 Goleadores Históricos
               </CardTitle>
             </CardHeader>
@@ -224,7 +226,7 @@ export default async function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Handshake className="h-5 w-5 text-primary" />
+                <Handshake className="h-5 w-5 text-accent" />
                 Asistidores Históricos
               </CardTitle>
             </CardHeader>

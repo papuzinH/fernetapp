@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
 
 const adminLinks = [
   { href: "/admin", label: "Panel" },
@@ -15,21 +14,23 @@ export default function AdminLayout({
 }) {
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="flex items-center gap-2 mb-2">
-        <h1 className="text-xl font-bold">Panel de Administración</h1>
+      {/* Header con gradiente Deep Navy → Negro */}
+      <div className="bg-header-gradient rounded-xl px-6 py-5 mb-6 text-white">
+        <div className="flex items-center gap-2 mb-3">
+          <h1 className="text-xl font-bold tracking-tight">Panel de Administración</h1>
+        </div>
+        <nav className="flex items-center gap-4 text-sm">
+          {adminLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-white/70 hover:text-accent transition-colors font-medium"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
       </div>
-      <nav className="flex items-center gap-4 text-sm mb-4">
-        {adminLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {link.label}
-          </Link>
-        ))}
-      </nav>
-      <Separator className="mb-6" />
       {children}
     </div>
   );
