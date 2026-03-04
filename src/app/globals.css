@@ -62,7 +62,7 @@
   --secondary-foreground: oklch(0.17 0.07 248);
   --muted: oklch(0.95 0.005 247);
   --muted-foreground: oklch(0.5 0.04 248);
-  --accent: oklch(0.62 0.17 78);              /* Ámbar/Dorado #B8860B */
+  --accent: oklch(48.147% 0.19758 29.223);              /* Ámbar/Dorado #B8860B */
   --accent-foreground: oklch(0.12 0.04 248);  /* Navy oscuro para texto sobre dorado */
   --destructive: oklch(0.55 0.25 25);         /* Rojo intenso */
   --border: oklch(0.9 0.005 247);
@@ -91,13 +91,13 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.22 0.06 248);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.62 0.17 78);            /* Dorado como acción principal en dark */
+  --primary: oklch(78.577% 0.00009 271.152);            /* Dorado como acción principal en dark */
   --primary-foreground: oklch(0.12 0.05 248);/* Navy muy oscuro para texto sobre dorado */
   --secondary: oklch(0.25 0.06 248);         /* Navy medio para fondos secundarios */
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.25 0.05 248);
   --muted-foreground: oklch(0.72 0.03 248);
-  --accent: oklch(0.62 0.17 78);             /* Dorado para accents y hovers */
+  --accent: oklch(48.147% 0.19758 29.223);             /* Dorado para accents y hovers */
   --accent-foreground: oklch(0.12 0.05 248);
   --destructive: oklch(0.65 0.24 25);        /* Rojo más brillante en dark */
   --border: oklch(1 0 0 / 12%);

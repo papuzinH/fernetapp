@@ -49,15 +49,15 @@ export default async function MatchesAdminPage() {
       <Card>
         <CardContent className="pt-6">
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="min-w-[500px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Fecha</TableHead>
-                  <TableHead>Torneo</TableHead>
+                  <TableHead className="hidden sm:table-cell">Torneo</TableHead>
                   <TableHead>Rival</TableHead>
                   <TableHead className="text-center">Resultado</TableHead>
-                  <TableHead className="text-center">🟨</TableHead>
-                  <TableHead className="text-center">🟥</TableHead>
+                  <TableHead className="hidden sm:table-cell text-center">🟨</TableHead>
+                  <TableHead className="hidden sm:table-cell text-center">🟥</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -82,7 +82,7 @@ export default async function MatchesAdminPage() {
                           year: "numeric",
                         })}
                       </TableCell>
-                      <TableCell className="text-sm">
+                      <TableCell className="hidden sm:table-cell text-sm">
                         {tournament
                           ? `${tournament.name} ${tournament.year}`
                           : "-"}
@@ -98,10 +98,10 @@ export default async function MatchesAdminPage() {
                           {m.goals_for} - {m.goals_against}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="hidden sm:table-cell text-center">
                         {m.yellow_cards > 0 ? m.yellow_cards : "-"}
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="hidden sm:table-cell text-center">
                         {m.red_cards > 0 ? m.red_cards : "-"}
                       </TableCell>
                       <TableCell className="text-right">

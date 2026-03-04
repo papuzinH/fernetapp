@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,7 +17,6 @@ import {
   TrendingUp,
   Minus,
   TrendingDown,
-  Beer,
 } from "lucide-react";
 import type { PlayerCareerStats, TeamSummary, Match } from "@/lib/supabase/types";
 
@@ -65,16 +65,43 @@ export default async function DashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Header con gradiente Deep Navy */}
-      <div className="bg-header-gradient rounded-xl px-6 py-7 text-white">
-        <div className="flex items-center gap-3">
-          <Beer className="h-8 w-8 text-accent" />
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Fernet con Guaymallén
-            </h1>
-            <p className="text-white/60">Historial Fernetero</p>
+      {/* Hero Header */}
+      <div className="relative rounded-xl overflow-hidden text-white" style={{ minHeight: "200px" }}>
+        {/* Fondo: foto atmosférica */}
+        <Image
+          src="/Gemini_Generated_Image_rirq81rirq81rirq.png"
+          alt=""
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        {/* Overlay: gradiente naval de izquierda a derecha */}
+        <div className="absolute inset-0 bg-linear-to-r from-[#0A192F]/95 via-[#0A192F]/80 to-[#0A192F]/30" />
+
+        {/* Contenido */}
+        <div className="relative flex items-center justify-between px-6 md:px-10 py-8">
+          {/* Logo + Texto */}
+          <div className="flex items-center gap-5">
+            <Image
+              src="/Escudo Fernet 2023 PNG.png"
+              alt="Escudo Club Atlético Fernet con Guaymallén"
+              width={88}
+              height={88}
+              className="object-contain drop-shadow-xl shrink-0"
+              priority
+            />
+            <div>
+              <p className="text-white/50 text-xs font-semibold tracking-[0.2em] uppercase mb-1">
+                Club Atlético
+              </p>
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
+                Fernet con Guaymallén
+              </h1>
+              <p className="text-white/60 text-sm mt-1">Historial Fernetero</p>
+            </div>
           </div>
+
+       
         </div>
       </div>
 

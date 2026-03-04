@@ -1,11 +1,5 @@
-import Link from "next/link";
-
-const adminLinks = [
-  { href: "/admin", label: "Panel" },
-  { href: "/admin/matches", label: "Partidos" },
-  { href: "/admin/players", label: "Jugadores" },
-  { href: "/admin/tournaments", label: "Torneos" },
-];
+import Image from "next/image";
+import { AdminNav } from "./admin-nav";
 
 export default function AdminLayout({
   children,
@@ -15,21 +9,20 @@ export default function AdminLayout({
   return (
     <div className="container mx-auto px-4 py-6">
       {/* Header con gradiente Deep Navy → Negro */}
-      <div className="bg-header-gradient rounded-xl px-6 py-5 mb-6 text-white">
+      <div className="bg-header-gradient rounded-xl px-4 sm:px-6 py-4 sm:py-5 mb-6 text-white">
         <div className="flex items-center gap-2 mb-3">
-          <h1 className="text-xl font-bold tracking-tight">Panel de Administración</h1>
+          <Image
+            src="/Escudo Fernet 2023 PNG.png"
+            alt="Escudo"
+            width={32}
+            height={32}
+            className="object-contain drop-shadow shrink-0"
+          />
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight">
+            Panel de Administración
+          </h1>
         </div>
-        <nav className="flex items-center gap-4 text-sm">
-          {adminLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-white/70 hover:text-accent transition-colors font-medium"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <AdminNav />
       </div>
       {children}
     </div>

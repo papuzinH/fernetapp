@@ -43,12 +43,13 @@ export default async function PlayersAdminPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <Table>
+          <div className="overflow-x-auto">
+          <Table className="min-w-[400px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Apodo</TableHead>
-                <TableHead>Nombre Completo</TableHead>
-                <TableHead>Posición</TableHead>
+                <TableHead className="hidden sm:table-cell">Nombre Completo</TableHead>
+                <TableHead className="hidden xs:table-cell">Posición</TableHead>
                 <TableHead className="text-center">Estado</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -57,10 +58,10 @@ export default async function PlayersAdminPage() {
               {players?.map((p) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.nickname}</TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="hidden sm:table-cell text-muted-foreground">
                     {p.full_name || "-"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden xs:table-cell">
                     {p.position ? (
                       <Badge variant="outline">{p.position}</Badge>
                     ) : (
@@ -101,6 +102,7 @@ export default async function PlayersAdminPage() {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

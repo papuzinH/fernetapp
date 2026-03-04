@@ -76,16 +76,17 @@ export default async function FixturesPage({ searchParams }: PageProps) {
 
       <Card>
         <CardContent className="pt-6">
-          <Table>
+          <div className="overflow-x-auto">
+          <Table className="min-w-[400px]">
             <TableHeader>
               <TableRow>
                 <TableHead>Fecha</TableHead>
-                <TableHead>Torneo</TableHead>
+                <TableHead className="hidden sm:table-cell">Torneo</TableHead>
                 <TableHead>Rival</TableHead>
                 <TableHead className="text-center">Resultado</TableHead>
-                <TableHead className="text-center">🟨</TableHead>
-                <TableHead className="text-center">🟥</TableHead>
-                <TableHead>Video</TableHead>
+                <TableHead className="hidden sm:table-cell text-center">🟨</TableHead>
+                <TableHead className="hidden sm:table-cell text-center">🟥</TableHead>
+                <TableHead className="hidden md:table-cell">Video</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -113,7 +114,7 @@ export default async function FixturesPage({ searchParams }: PageProps) {
                         }
                       )}
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="hidden sm:table-cell text-sm">
                       {tournament
                         ? `${tournament.name} ${tournament.year}`
                         : "-"}
@@ -127,13 +128,13 @@ export default async function FixturesPage({ searchParams }: PageProps) {
                         {m.goals_for} - {m.goals_against}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="hidden sm:table-cell text-center">
                       {m.yellow_cards > 0 ? m.yellow_cards : "-"}
                     </TableCell>
-                    <TableCell className="text-center">
+                    <TableCell className="hidden sm:table-cell text-center">
                       {m.red_cards > 0 ? m.red_cards : "-"}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       {m.video_url ? (
                         <a
                           href={m.video_url}
@@ -162,6 +163,7 @@ export default async function FixturesPage({ searchParams }: PageProps) {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

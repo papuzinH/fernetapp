@@ -335,7 +335,8 @@ export function MatchForm({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            {/* Vista desktop — tabla */}
+            <div className="hidden sm:block overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -453,6 +454,120 @@ export function MatchForm({
                   })}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Vista mobile — cards por jugador */}
+            <div className="sm:hidden space-y-3">
+              {fields.map((field, index) => {
+                const isPlayed = form.watch(`player_stats.${index}.played`);
+                return (
+                  <div
+                    key={field.id}
+                    className={`rounded-lg border p-3 transition-opacity ${
+                      isPlayed ? "" : "opacity-50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="font-semibold text-base">
+                        {field.nickname}
+                      </Label>
+                      <FormField
+                        control={form.control}
+                        name={`player_stats.${index}.played`}
+                        render={({ field: checkField }) => (
+                          <FormItem className="flex items-center gap-2 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={checkField.value}
+                                onCheckedChange={checkField.onChange}
+                              />
+                            </FormControl>
+                            <Label className="text-sm text-muted-foreground font-normal cursor-pointer">
+                              Jugó
+                            </Label>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      <FormField
+                        control={form.control}
+                        name={`player_stats.${index}.goals`}
+                        render={({ field: f }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs text-muted-foreground">⚽ Goles</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={0}
+                                disabled={!isPlayed}
+                                className="text-center text-sm h-9"
+                                {...f}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`player_stats.${index}.assists`}
+                        render={({ field: f }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs text-muted-foreground">🎯 Asist.</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={0}
+                                disabled={!isPlayed}
+                                className="text-center text-sm h-9"
+                                {...f}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`player_stats.${index}.yellow_cards`}
+                        render={({ field: f }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs text-muted-foreground">🟨 Amar.</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={2}
+                                disabled={!isPlayed}
+                                className="text-center text-sm h-9"
+                                {...f}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`player_stats.${index}.red_cards`}
+                        render={({ field: f }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs text-muted-foreground">🟥 Roja</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                min={0}
+                                max={1}
+                                disabled={!isPlayed}
+                                className="text-center text-sm h-9"
+                                {...f}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
