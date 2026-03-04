@@ -8,8 +8,9 @@ const PRECACHE_URLS = [
   "/players",
   "/offline",
   "/Escudo Fernet 2023 PNG.png",
-  "/icon-192x192.png",
-  "/icon-512x512.png",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png",
+  "/apple-touch-icon.png",
 ];
 
 // Instalación: pre-cachea los recursos críticos
