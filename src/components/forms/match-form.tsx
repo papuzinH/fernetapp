@@ -129,9 +129,30 @@ export function MatchForm({
   async function onSubmit(data: MatchFormValues) {
     setIsSubmitting(true);
     try {
+      // Para partidos programados, limpiar stats que no aplican
+      const submitData =
+        data.status === "scheduled"
+          ? {
+              ...data,
+              goals_for: 0,
+              goals_against: 0,
+              yellow_cards: 0,
+              red_cards: 0,
+              video_url: "",
+              notes: "",
+              player_stats: (data.player_stats ?? []).map((ps) => ({
+                ...ps,
+                goals: 0,
+                assists: 0,
+                yellow_cards: 0,
+                red_cards: 0,
+              })),
+            }
+          : data;
+
       const result = isEditing
-        ? await updateMatch(existingMatch!.id, data)
-        : await createMatch(data);
+        ? await updateMatch(existingMatch!.id, submitData)
+        : await createMatch(submitData);
 
       if (result.success) {
         toast.success(result.message);
@@ -290,7 +311,7 @@ export function MatchForm({
             )}
 
             {/* Resultado (only for completed matches) */}
-            <div className="flex flex-wrap items-end gap-4">
+            {matchStatus === "completed" && <div className="flex flex-wrap items-end gap-4">
               <FormField
                 control={form.control}
                 name="goals_for"
@@ -302,7 +323,6 @@ export function MatchForm({
                         type="number"
                         min={0}
                         className="text-center text-lg font-bold"
-                        disabled={matchStatus === "scheduled"}
                         {...field}
                       />
                     </FormControl>
@@ -324,7 +344,6 @@ export function MatchForm({
                         type="number"
                         min={0}
                         className="text-center text-lg font-bold"
-                        disabled={matchStatus === "scheduled"}
                         {...field}
                       />
                     </FormControl>
@@ -337,9 +356,10 @@ export function MatchForm({
                   {resultPreview.label} {goalsFor}-{goalsAgainst}
                 </Badge>
               )}
-            </div>
+            </div>}
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {matchStatus === "completed" && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <FormField
                 control={form.control}
                 name="yellow_cards"
@@ -403,7 +423,9 @@ export function MatchForm({
                 )}
               />
             </div>
+            )}
 
+            {matchStatus === "completed" && (
             <FormField
               control={form.control}
               name="notes"
@@ -421,6 +443,7 @@ export function MatchForm({
                 </FormItem>
               )}
             />
+            )}
           </CardContent>
         </Card>
 
@@ -461,12 +484,18 @@ export function MatchForm({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-10">Jugó</TableHead>
+                    <TableHead className="w-10">
+                      {matchStatus === "scheduled" ? "Va" : "Jugó"}
+                    </TableHead>
                     <TableHead>Jugador</TableHead>
-                    <TableHead className="w-20 text-center">Goles</TableHead>
-                    <TableHead className="w-20 text-center">Asist.</TableHead>
-                    <TableHead className="w-20 text-center">🟨</TableHead>
-                    <TableHead className="w-20 text-center">🟥</TableHead>
+                    {matchStatus === "completed" && (
+                      <>
+                        <TableHead className="w-20 text-center">Goles</TableHead>
+                        <TableHead className="w-20 text-center">Asist.</TableHead>
+                        <TableHead className="w-20 text-center">🟨</TableHead>
+                        <TableHead className="w-20 text-center">🟥</TableHead>
+                      </>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -500,76 +529,80 @@ export function MatchForm({
                             {field.nickname}
                           </Label>
                         </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`player_stats.${index}.goals`}
-                            render={({ field: f }) => (
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  disabled={!isPlayed}
-                                  className="w-16 text-center"
-                                  {...f}
-                                />
-                              </FormControl>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`player_stats.${index}.assists`}
-                            render={({ field: f }) => (
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  disabled={!isPlayed}
-                                  className="w-16 text-center"
-                                  {...f}
-                                />
-                              </FormControl>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`player_stats.${index}.yellow_cards`}
-                            render={({ field: f }) => (
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  max={2}
-                                  disabled={!isPlayed}
-                                  className="w-16 text-center"
-                                  {...f}
-                                />
-                              </FormControl>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`player_stats.${index}.red_cards`}
-                            render={({ field: f }) => (
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  min={0}
-                                  max={1}
-                                  disabled={!isPlayed}
-                                  className="w-16 text-center"
-                                  {...f}
-                                />
-                              </FormControl>
-                            )}
-                          />
-                        </TableCell>
+                        {matchStatus === "completed" && (
+                          <>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name={`player_stats.${index}.goals`}
+                                render={({ field: f }) => (
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      min={0}
+                                      disabled={!isPlayed}
+                                      className="w-16 text-center"
+                                      {...f}
+                                    />
+                                  </FormControl>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name={`player_stats.${index}.assists`}
+                                render={({ field: f }) => (
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      min={0}
+                                      disabled={!isPlayed}
+                                      className="w-16 text-center"
+                                      {...f}
+                                    />
+                                  </FormControl>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name={`player_stats.${index}.yellow_cards`}
+                                render={({ field: f }) => (
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      min={0}
+                                      max={2}
+                                      disabled={!isPlayed}
+                                      className="w-16 text-center"
+                                      {...f}
+                                    />
+                                  </FormControl>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <FormField
+                                control={form.control}
+                                name={`player_stats.${index}.red_cards`}
+                                render={({ field: f }) => (
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      min={0}
+                                      max={1}
+                                      disabled={!isPlayed}
+                                      className="w-16 text-center"
+                                      {...f}
+                                    />
+                                  </FormControl>
+                                )}
+                              />
+                            </TableCell>
+                          </>
+                        )}
                       </TableRow>
                     );
                   })}
@@ -588,7 +621,7 @@ export function MatchForm({
                       isPlayed ? "" : "opacity-50"
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between">
                       <Label className="font-semibold text-base">
                         {field.nickname}
                       </Label>
@@ -604,13 +637,13 @@ export function MatchForm({
                               />
                             </FormControl>
                             <Label className="text-sm text-muted-foreground font-normal cursor-pointer">
-                              Jugó
+                              {matchStatus === "scheduled" ? "Va" : "Jugó"}
                             </Label>
                           </FormItem>
                         )}
                       />
                     </div>
-                    <div className="grid grid-cols-4 gap-2">
+                    {matchStatus === "completed" && <div className="grid grid-cols-4 gap-2 mt-3">
                       <FormField
                         control={form.control}
                         name={`player_stats.${index}.goals`}
@@ -685,7 +718,7 @@ export function MatchForm({
                           </FormItem>
                         )}
                       />
-                    </div>
+                    </div>}
                   </div>
                 );
               })}

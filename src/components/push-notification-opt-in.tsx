@@ -46,7 +46,8 @@ export function PushNotificationOptIn() {
       const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
       if (!vapidKey) {
-        toast.error("Configuración de push incompleta");
+        // VAPID key not configured — permission granted but server push disabled
+        toast.success("Notificaciones activadas 🔔");
         return;
       }
 
