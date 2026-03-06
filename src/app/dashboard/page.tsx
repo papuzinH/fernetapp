@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Link from "next/link";
 import {
   Trophy,
   Target,
@@ -17,7 +18,10 @@ import {
   TrendingUp,
   Minus,
   TrendingDown,
+  Star,
 } from "lucide-react";
+import { NextMatchWidget } from "@/components/next-match-widget";
+import { InstagramWidget } from "@/components/instagram-widget";
 import type { PlayerCareerStats, TeamSummary, Match } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
@@ -104,6 +108,9 @@ export default async function DashboardPage() {
        
         </div>
       </div>
+
+      {/* Next Match Widget */}
+      <NextMatchWidget />
 
       {/* Team Summary Cards */}
       {team && (
@@ -323,6 +330,7 @@ export default async function DashboardPage() {
                   <TableHead>Torneo</TableHead>
                   <TableHead>Rival</TableHead>
                   <TableHead className="text-center">Resultado</TableHead>
+                  <TableHead className="text-center">MVP</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -362,13 +370,31 @@ export default async function DashboardPage() {
                           {m.goals_for} - {m.goals_against}
                         </Badge>
                       </TableCell>
+                      <TableCell className="text-center">
+                        {(() => {
+                          const updated = new Date(m.updated_at);
+                          const deadline = new Date(updated.getTime() + 24 * 60 * 60 * 1000);
+                          const isVotingOpen = m.status === "completed" && new Date() <= deadline;
+                          if (isVotingOpen) {
+                            return (
+                              <Link href={`/matches/${m.id}/mvp`}>
+                                <Badge variant="outline" className="gap-1 cursor-pointer hover:bg-accent/10 text-yellow-600 border-yellow-300">
+                                  <Star className="h-3 w-3" />
+                                  Votar
+                                </Badge>
+                              </Link>
+                            );
+                          }
+                          return <span className="text-muted-foreground">—</span>;
+                        })()}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
                 {(!recentMatches || recentMatches.length === 0) && (
                   <TableRow>
                     <TableCell
-                      colSpan={4}
+                      colSpan={5}
                       className="text-center text-muted-foreground py-8"
                     >
                       No hay partidos registrados aún.
@@ -379,6 +405,9 @@ export default async function DashboardPage() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Instagram Widget */}
+        <InstagramWidget />
       </div>
     </div>
   );

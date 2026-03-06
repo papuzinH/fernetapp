@@ -5,6 +5,7 @@ import {
   getPlayerTournamentStats,
   getPlayerRecentMatches,
 } from "@/lib/supabase/queries/players";
+import { getPlayerDebt, getPlayerPayments } from "@/lib/supabase/queries/payments";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -17,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Star, AlertTriangle } from "lucide-react";
 
 const positionLabel: Record<string, string> = {
   ARQ: "Arquero",
@@ -35,10 +36,12 @@ interface PageProps {
 export default async function PlayerDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const [career, tournamentStats, recentMatches] = await Promise.all([
+  const [career, tournamentStats, recentMatches, debt, payments] = await Promise.all([
     getPlayerCareerStats(id),
     getPlayerTournamentStats(id),
     getPlayerRecentMatches(id, 10),
+    getPlayerDebt(id),
+    getPlayerPayments(id),
   ]);
 
   if (!career) notFound();
@@ -91,7 +94,7 @@ export default async function PlayerDetailPage({ params }: PageProps) {
       {/* Stats de carrera */}
       <section>
         <h2 className="text-xl font-semibold mb-4">Stats de Carrera</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {[
             { label: "Partidos", value: career.matches_played },
             { label: "Goles", value: career.total_goals },
@@ -106,6 +109,7 @@ export default async function PlayerDetailPage({ params }: PageProps) {
             },
             { label: "🟨 Amarillas", value: career.total_yellow_cards },
             { label: "🟥 Rojas", value: career.total_red_cards },
+            { label: "⭐ MVP", value: career.mvp_count },
           ].map(({ label, value }) => (
             <Card key={label}>
               <CardContent className="pt-4 pb-3 text-center">
@@ -116,6 +120,79 @@ export default async function PlayerDetailPage({ params }: PageProps) {
           ))}
         </div>
       </section>
+
+      {/* Estado de Cuenta */}
+      {debt && (Number(debt.total_debt) > 0 || payments.length > 0) && (
+        <section>
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            {Number(debt.total_debt) > 0 && (
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+            )}
+            Estado de Cuenta
+          </h2>
+          {Number(debt.total_debt) > 0 && (
+            <Card className="border-red-200 dark:border-red-900 mb-4">
+              <CardContent className="pt-4 pb-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Deuda acumulada</span>
+                  <span className="text-2xl font-bold text-red-600">
+                    ${Number(debt.total_debt).toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {debt.pending_matches} partido{debt.pending_matches !== 1 ? "s" : ""} pendiente{debt.pending_matches !== 1 ? "s" : ""} de pago
+                </p>
+              </CardContent>
+            </Card>
+          )}
+          {payments.length > 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="overflow-x-auto">
+                  <Table className="min-w-[380px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Fecha</TableHead>
+                        <TableHead>Rival</TableHead>
+                        <TableHead className="text-right">Monto</TableHead>
+                        <TableHead className="text-center">Estado</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {payments.slice(0, 10).map((p) => (
+                        <TableRow key={p.id}>
+                          <TableCell className="text-sm">
+                            {new Date(p.match_date + "T12:00:00").toLocaleDateString(
+                              "es-AR",
+                              { day: "2-digit", month: "2-digit", year: "2-digit" }
+                            )}
+                          </TableCell>
+                          <TableCell className="font-medium text-sm">
+                            {p.opponent}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            ${Number(p.amount).toLocaleString("es-AR", {
+                              minimumFractionDigits: 2,
+                            })}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge
+                              variant={p.status === "paid" ? "secondary" : "destructive"}
+                              className={p.status === "paid" ? "bg-green-100 text-green-700" : ""}
+                            >
+                              {p.status === "paid" ? "Pagado" : "Pendiente"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </section>
+      )}
 
       {/* Stats por torneo */}
       {tournamentStats.length > 0 && (

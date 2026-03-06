@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useTheme } from "next-themes";
+import { PushNotificationOptIn } from "@/components/push-notification-opt-in";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -59,6 +60,7 @@ export function Navbar() {
           })}
 
           {/* Theme Toggle */}
+          <PushNotificationOptIn />
           <Button
             variant="ghost"
             size="icon"
@@ -73,6 +75,7 @@ export function Navbar() {
 
         {/* Mobile right side */}
         <div className="flex items-center gap-1 md:hidden">
+          <PushNotificationOptIn />
           {/* Theme Toggle mobile */}
           <Button
             variant="ghost"

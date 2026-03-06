@@ -44,6 +44,12 @@ export const matchSchema = z.object({
     .optional()
     .or(z.literal("")),
   notes: z.string().max(500).optional().or(z.literal("")),
+  // Phase 2 fields
+  status: z.enum(["scheduled", "completed"]).default("completed"),
+  location_name: z.string().max(200).optional().or(z.literal("")),
+  location_address: z.string().max(500).optional().or(z.literal("")),
+  datetime: z.string().optional().or(z.literal("")),
+  pitch_price: z.coerce.number().min(0, "El precio no puede ser negativo").optional(),
   player_stats: z.array(playerMatchStatSchema).optional(),
 });
 

@@ -13,6 +13,7 @@ const adminLinks = [
   { href: "/admin/matches", label: "Partidos", exact: false },
   { href: "/admin/players", label: "Jugadores", exact: false },
   { href: "/admin/tournaments", label: "Torneos", exact: false },
+  { href: "/admin/payments", label: "Pagos", exact: false },
 ];
 
 export function AdminNav() {

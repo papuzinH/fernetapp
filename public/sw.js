@@ -1,5 +1,5 @@
 // FernetApp Service Worker
-const CACHE_NAME = "fernetapp-v1";
+const CACHE_NAME = "fernetapp-v2";
 
 // Páginas y assets críticos a pre-cachear
 const PRECACHE_URLS = [
@@ -86,4 +86,46 @@ self.addEventListener("fetch", (event) => {
       )
     );
   }
+});
+
+// Push Notifications
+self.addEventListener("push", (event) => {
+  let data = { title: "FernetApp", body: "Tenés una notificación", url: "/dashboard" };
+  try {
+    if (event.data) {
+      data = { ...data, ...event.data.json() };
+    }
+  } catch {
+    // fallback
+  }
+
+  const options = {
+    body: data.body,
+    icon: "/icons/icon-192x192.png",
+    badge: "/icons/icon-96x96.png",
+    vibrate: [100, 50, 100],
+    data: { url: data.url || "/dashboard" },
+    actions: [{ action: "open", title: "Abrir" }],
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/dashboard";
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clients) => {
+        for (const client of clients) {
+          if (client.url.includes(self.location.origin) && "focus" in client) {
+            client.navigate(url);
+            return client.focus();
+          }
+        }
+        return self.clients.openWindow(url);
+      })
+  );
 });

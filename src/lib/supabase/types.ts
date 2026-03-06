@@ -1,5 +1,5 @@
-// Tipos de la base de datos generados manualmente a partir de 001_initial_schema.sql
-// Reemplazar corriendo: npx supabase gen types typescript --project-id TU_ID > src/lib/supabase/types.ts
+// Tipos de la base de datos generados manualmente
+// Incluye 001_initial_schema.sql + 002_phase2_schema.sql
 
 export type Database = {
   public: {
@@ -69,6 +69,12 @@ export type Database = {
           red_cards: number;
           video_url: string | null;
           notes: string | null;
+          status: "scheduled" | "completed";
+          location_name: string | null;
+          location_address: string | null;
+          datetime: string | null;
+          pitch_price: number | null;
+          notified_24h: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -83,6 +89,12 @@ export type Database = {
           red_cards?: number;
           video_url?: string | null;
           notes?: string | null;
+          status?: "scheduled" | "completed";
+          location_name?: string | null;
+          location_address?: string | null;
+          datetime?: string | null;
+          pitch_price?: number | null;
+          notified_24h?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -97,6 +109,12 @@ export type Database = {
           red_cards?: number;
           video_url?: string | null;
           notes?: string | null;
+          status?: "scheduled" | "completed";
+          location_name?: string | null;
+          location_address?: string | null;
+          datetime?: string | null;
+          pitch_price?: number | null;
+          notified_24h?: boolean;
           updated_at?: string;
         };
         Relationships: [
@@ -159,6 +177,108 @@ export type Database = {
           },
         ];
       };
+      payments: {
+        Row: {
+          id: string;
+          player_id: string;
+          match_id: string;
+          amount: number;
+          status: "pending" | "paid";
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          player_id: string;
+          match_id: string;
+          amount: number;
+          status?: "pending" | "paid";
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          player_id?: string;
+          match_id?: string;
+          amount?: number;
+          status?: "pending" | "paid";
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payments_player_id_fkey";
+            columns: ["player_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payments_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: false;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      mvp_votes: {
+        Row: {
+          id: string;
+          match_id: string;
+          player_id: string;
+          device_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          match_id: string;
+          player_id: string;
+          device_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          match_id?: string;
+          player_id?: string;
+          device_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "mvp_votes_match_id_fkey";
+            columns: ["match_id"];
+            isOneToOne: false;
+            referencedRelation: "matches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "mvp_votes_player_id_fkey";
+            columns: ["player_id"];
+            isOneToOne: false;
+            referencedRelation: "players";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      push_subscriptions: {
+        Row: {
+          id: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          endpoint: string;
+          p256dh: string;
+          auth: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          endpoint?: string;
+          p256dh?: string;
+          auth?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       v_player_career_stats: {
@@ -175,6 +295,7 @@ export type Database = {
           goals_per_match: number;
           total_yellow_cards: number;
           total_red_cards: number;
+          mvp_count: number;
         };
         Relationships: [];
       };
@@ -224,6 +345,19 @@ export type Database = {
         };
         Relationships: [];
       };
+      v_player_debt_summary: {
+        Row: {
+          player_id: string;
+          nickname: string;
+          full_name: string | null;
+          is_active: boolean;
+          total_debt: number;
+          total_paid: number;
+          pending_matches: number;
+          total_matches_with_payment: number;
+        };
+        Relationships: [];
+      };
     };
     Functions: Record<string, never>;
     Enums: Record<string, never>;
@@ -242,3 +376,9 @@ export type MatchPlayerStatsInsert = Database["public"]["Tables"]["match_player_
 export type PlayerCareerStats = Database["public"]["Views"]["v_player_career_stats"]["Row"];
 export type TeamSummary = Database["public"]["Views"]["v_team_summary"]["Row"];
 export type TeamTournamentSummary = Database["public"]["Views"]["v_team_tournament_summary"]["Row"];
+export type Payment = Database["public"]["Tables"]["payments"]["Row"];
+export type PaymentInsert = Database["public"]["Tables"]["payments"]["Insert"];
+export type MvpVote = Database["public"]["Tables"]["mvp_votes"]["Row"];
+export type MvpVoteInsert = Database["public"]["Tables"]["mvp_votes"]["Insert"];
+export type PushSubscription = Database["public"]["Tables"]["push_subscriptions"]["Row"];
+export type PlayerDebtSummary = Database["public"]["Views"]["v_player_debt_summary"]["Row"];

@@ -39,6 +39,7 @@ import { toast } from "sonner";
 import { createMatch, updateMatch } from "@/app/admin/matches/actions";
 import type { Tournament, Player, Match, MatchPlayerStats } from "@/lib/supabase/types";
 import { useState, useMemo } from "react";
+import { WhatsAppParser } from "@/components/whatsapp-parser";
 
 interface MatchFormProps {
   tournaments: Tournament[];
@@ -85,6 +86,11 @@ export function MatchForm({
       red_cards: existingMatch?.red_cards ?? 0,
       video_url: existingMatch?.video_url ?? "",
       notes: existingMatch?.notes ?? "",
+      status: existingMatch?.status ?? "completed",
+      location_name: existingMatch?.location_name ?? "",
+      location_address: existingMatch?.location_address ?? "",
+      datetime: existingMatch?.datetime ?? "",
+      pitch_price: existingMatch?.pitch_price ?? undefined,
       player_stats: defaultPlayerStats,
     },
   });
@@ -97,6 +103,7 @@ export function MatchForm({
   const goalsFor = form.watch("goals_for");
   const goalsAgainst = form.watch("goals_against");
   const playerStats = form.watch("player_stats");
+  const matchStatus = form.watch("status");
 
   const resultPreview = useMemo(() => {
     const gf = Number(goalsFor) || 0;
@@ -149,7 +156,34 @@ export function MatchForm({
             <CardTitle>Datos del Partido</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Status + basic fields */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Status */}
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estado</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="scheduled">Programado</SelectItem>
+                        <SelectItem value="completed">Completado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {/* Fecha */}
               <FormField
                 control={form.control}
@@ -210,7 +244,52 @@ export function MatchForm({
               />
             </div>
 
-            {/* Resultado */}
+            {/* Phase 2: DateTime + Location (shown for scheduled matches) */}
+            {matchStatus === "scheduled" && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 rounded-lg border border-dashed border-blue-300 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
+                <FormField
+                  control={form.control}
+                  name="datetime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fecha y Hora</FormLabel>
+                      <FormControl>
+                        <Input type="datetime-local" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="location_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Lugar</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: Cancha Diaz" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="location_address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dirección</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: Av. San Martín 1234" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
+
+            {/* Resultado (only for completed matches) */}
             <div className="flex flex-wrap items-end gap-4">
               <FormField
                 control={form.control}
@@ -223,6 +302,7 @@ export function MatchForm({
                         type="number"
                         min={0}
                         className="text-center text-lg font-bold"
+                        disabled={matchStatus === "scheduled"}
                         {...field}
                       />
                     </FormControl>
@@ -244,6 +324,7 @@ export function MatchForm({
                         type="number"
                         min={0}
                         className="text-center text-lg font-bold"
+                        disabled={matchStatus === "scheduled"}
                         {...field}
                       />
                     </FormControl>
@@ -251,9 +332,11 @@ export function MatchForm({
                   </FormItem>
                 )}
               />
-              <Badge className={`mb-2 ${resultPreview.color}`}>
-                {resultPreview.label} {goalsFor}-{goalsAgainst}
-              </Badge>
+              {matchStatus === "completed" && (
+                <Badge className={`mb-2 ${resultPreview.color}`}>
+                  {resultPreview.label} {goalsFor}-{goalsAgainst}
+                </Badge>
+              )}
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -287,12 +370,32 @@ export function MatchForm({
                 control={form.control}
                 name="video_url"
                 render={({ field }) => (
-                  <FormItem className="sm:col-span-2">
+                  <FormItem>
                     <FormLabel>URL del Video (opcional)</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="https://youtube.com/..."
                         {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="pitch_price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Precio Cancha ($)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        placeholder="Ej: 25000"
+                        {...field}
+                        value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormMessage />
@@ -324,8 +427,26 @@ export function MatchForm({
         {/* Sección B — Stats individuales */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              Stats de Jugadores
+            <CardTitle className="flex items-center justify-between flex-wrap gap-2">
+              <span className="flex items-center gap-2">
+                Stats de Jugadores
+                <WhatsAppParser
+                  players={players.filter((p) => p.is_active).map((p) => ({
+                    player_id: p.id,
+                    nickname: p.nickname,
+                    full_name: p.full_name,
+                  }))}
+                  onApply={(ids) => {
+                    const stats = form.getValues("player_stats") ?? [];
+                    stats.forEach((_, idx) => {
+                      form.setValue(
+                        `player_stats.${idx}.played`,
+                        ids.includes(stats[idx].player_id)
+                      );
+                    });
+                  }}
+                />
+              </span>
               {goalsMismatch && (
                 <Badge variant="destructive" className="text-xs">
                   ⚠️ Goles individuales ({totalPlayerGoals}) ≠ Goles del equipo (
