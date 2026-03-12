@@ -91,12 +91,28 @@ export default async function MatchesAdminPage() {
                         {m.opponent}
                       </TableCell>
                       <TableCell className="text-center">
-                        <Badge
-                          variant="secondary"
-                          className={`font-mono font-bold ${resultColor}`}
-                        >
-                          {m.goals_for} - {m.goals_against}
-                        </Badge>
+                        {m.status === "scheduled" ? (
+                          (() => {
+                            const matchDt = m.datetime ? new Date(m.datetime) : null;
+                            const canComplete = matchDt && new Date() > new Date(matchDt.getTime() + 60 * 60 * 1000);
+                            return canComplete ? (
+                              <Badge variant="destructive" className="text-[10px]">
+                                Pendiente de completar
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-[10px] text-blue-600 border-blue-300">
+                                Programado
+                              </Badge>
+                            );
+                          })()
+                        ) : (
+                          <Badge
+                            variant="secondary"
+                            className={`font-mono font-bold ${resultColor}`}
+                          >
+                            {m.goals_for} - {m.goals_against}
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-center">
                         {m.yellow_cards > 0 ? m.yellow_cards : "-"}

@@ -19,6 +19,7 @@ import {
   Minus,
   TrendingDown,
   Star,
+  Award,
 } from "lucide-react";
 import { NextMatchWidget } from "@/components/next-match-widget";
 import { InstagramWidget } from "@/components/instagram-widget";
@@ -55,16 +56,26 @@ export default async function DashboardPage() {
     .order("total_assists", { ascending: false })
     .limit(10);
 
-  // Fetch recent matches
+  // Fetch top MVPs
+  const { data: topMvpsData } = await supabase
+    .from("v_player_career_stats")
+    .select("*")
+    .gt("mvp_count", 0)
+    .order("mvp_count", { ascending: false })
+    .limit(10);
+
+  // Fetch recent matches (only completed)
   const { data: recentMatchesData } = await supabase
     .from("matches")
     .select("*, tournaments(name, year)")
+    .eq("status", "completed")
     .order("date", { ascending: false })
     .limit(5);
 
   const team = teamSummaryData as TeamSummary | null;
   const scorers = (topScorersData ?? []) as PlayerCareerStats[];
   const assisters = (topAssistersData ?? []) as PlayerCareerStats[];
+  const mvps = (topMvpsData ?? []) as PlayerCareerStats[];
   const recentMatches = (recentMatchesData ?? []) as unknown as MatchWithTournament[];
 
   return (
@@ -225,7 +236,9 @@ export default async function DashboardPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {p.nickname}
+                          <Link href={`/players/${p.player_id}`} className="hover:underline hover:text-accent">
+                            {p.nickname}
+                          </Link>
                           {i === 0 && (
                             <Badge variant="default" className="text-[10px]">
                               Goleador Histórico
@@ -283,7 +296,9 @@ export default async function DashboardPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {p.nickname}
+                          <Link href={`/players/${p.player_id}`} className="hover:underline hover:text-accent">
+                            {p.nickname}
+                          </Link>
                           {i === 0 && (
                             <Badge variant="default" className="text-[10px]">
                               Asistidor Histórico
@@ -314,6 +329,57 @@ export default async function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Top MVPs */}
+        {mvps.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-accent" />
+                Más Valiosos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-8">#</TableHead>
+                    <TableHead>Jugador</TableHead>
+                    <TableHead className="text-center">PJ</TableHead>
+                    <TableHead className="text-center">⭐ MVP</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mvps.map((p, i) => (
+                    <TableRow key={p.player_id}>
+                      <TableCell className="font-medium">
+                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Link href={`/players/${p.player_id}`} className="hover:underline hover:text-accent">
+                            {p.nickname}
+                          </Link>
+                          {i === 0 && (
+                            <Badge variant="default" className="text-[10px]">
+                              Más Valioso
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {p.matches_played}
+                      </TableCell>
+                      <TableCell className="text-center font-bold">
+                        {p.mvp_count}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Últimos Partidos */}
@@ -346,29 +412,37 @@ export default async function DashboardPage() {
                     year: number;
                   } | null;
                   return (
-                    <TableRow key={m.id}>
+                    <TableRow key={m.id} className="cursor-pointer hover:bg-muted/50">
                       <TableCell>
-                        {new Date(m.date + "T12:00:00").toLocaleDateString("es-AR", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })}
+                        <Link href={`/matches/${m.id}`} className="block">
+                          {new Date(m.date + "T12:00:00").toLocaleDateString("es-AR", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })}
+                        </Link>
                       </TableCell>
                       <TableCell>
-                        {tournament
-                          ? `${tournament.name} ${tournament.year}`
-                          : "-"}
+                        <Link href={`/matches/${m.id}`} className="block">
+                          {tournament
+                            ? `${tournament.name} ${tournament.year}`
+                            : "-"}
+                        </Link>
                       </TableCell>
                       <TableCell className="font-medium">
-                        {m.opponent}
+                        <Link href={`/matches/${m.id}`} className="block">
+                          {m.opponent}
+                        </Link>
                       </TableCell>
                       <TableCell className="text-center">
-                        <Badge
-                          variant="secondary"
-                          className={`font-mono font-bold ${resultColor}`}
-                        >
-                          {m.goals_for} - {m.goals_against}
-                        </Badge>
+                        <Link href={`/matches/${m.id}`}>
+                          <Badge
+                            variant="secondary"
+                            className={`font-mono font-bold ${resultColor}`}
+                          >
+                            {m.goals_for} - {m.goals_against}
+                          </Badge>
+                        </Link>
                       </TableCell>
                       <TableCell className="text-center">
                         {(() => {

@@ -60,7 +60,7 @@ export default async function PlayersPage() {
                       {positionLabel[player.position] ?? player.position}
                     </Badge>
                   )}
-                  <div className="grid grid-cols-3 gap-1 w-full mt-1 text-center">
+                  <div className="grid grid-cols-4 gap-1 w-full mt-1 text-center">
                     <div>
                       <p className="text-sm font-bold">{player.matches_played}</p>
                       <p className="text-[10px] text-muted-foreground">PJ</p>
@@ -72,6 +72,10 @@ export default async function PlayersPage() {
                     <div>
                       <p className="text-sm font-bold">{player.total_assists}</p>
                       <p className="text-[10px] text-muted-foreground">Asist.</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold">{player.mvp_count}</p>
+                      <p className="text-[10px] text-muted-foreground">⭐ MVP</p>
                     </div>
                   </div>
                 </CardContent>
@@ -116,7 +120,7 @@ export default async function PlayersPage() {
                         {positionLabel[player.position] ?? player.position}
                       </Badge>
                     )}
-                    <div className="grid grid-cols-3 gap-1 w-full mt-1 text-center">
+                    <div className="grid grid-cols-4 gap-1 w-full mt-1 text-center">
                       <div>
                         <p className="text-sm font-bold">{player.matches_played}</p>
                         <p className="text-[10px] text-muted-foreground">PJ</p>
@@ -128,6 +132,10 @@ export default async function PlayersPage() {
                       <div>
                         <p className="text-sm font-bold">{player.total_assists}</p>
                         <p className="text-[10px] text-muted-foreground">Asist.</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">{player.mvp_count}</p>
+                        <p className="text-[10px] text-muted-foreground">⭐ MVP</p>
                       </div>
                     </div>
                   </CardContent>

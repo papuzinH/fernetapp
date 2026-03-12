@@ -1,4 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -103,30 +104,40 @@ export default async function FixturesPage({ searchParams }: PageProps) {
                   year: number;
                 } | null;
                 return (
-                  <TableRow key={m.id}>
+                  <TableRow key={m.id} className="cursor-pointer hover:bg-muted/50">
                     <TableCell className="whitespace-nowrap">
-                      {new Date(m.date + "T12:00:00").toLocaleDateString(
-                        "es-AR",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }
-                      )}
+                      <Link href={`/matches/${m.id}`} className="block">
+                        {new Date(m.date + "T12:00:00").toLocaleDateString(
+                          "es-AR",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          }
+                        )}
+                      </Link>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-sm">
-                      {tournament
-                        ? `${tournament.name} ${tournament.year}`
-                        : "-"}
+                      <Link href={`/matches/${m.id}`} className="block">
+                        {tournament
+                          ? `${tournament.name} ${tournament.year}`
+                          : "-"}
+                      </Link>
                     </TableCell>
-                    <TableCell className="font-medium">{m.opponent}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link href={`/matches/${m.id}`} className="block">
+                        {m.opponent}
+                      </Link>
+                    </TableCell>
                     <TableCell className="text-center">
-                      <Badge
-                        variant="secondary"
-                        className={`font-mono font-bold ${resultColor}`}
-                      >
-                        {m.goals_for} - {m.goals_against}
-                      </Badge>
+                      <Link href={`/matches/${m.id}`}>
+                        <Badge
+                          variant="secondary"
+                          className={`font-mono font-bold ${resultColor}`}
+                        >
+                          {m.goals_for} - {m.goals_against}
+                        </Badge>
+                      </Link>
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-center">
                       {m.yellow_cards > 0 ? m.yellow_cards : "-"}

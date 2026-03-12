@@ -57,7 +57,7 @@ export async function createMatch(data: MatchFormValues): Promise<ActionResult> 
     };
   }
 
-  // Insertar stats de jugadores (si hay)
+  // Insertar stats de jugadores (solo si hay jugadores que jugaron y es completed)
   if (player_stats && player_stats.length > 0) {
     const statsToInsert = player_stats
       .filter((ps) => ps.played)
@@ -99,8 +99,42 @@ export async function createMatch(data: MatchFormValues): Promise<ActionResult> 
     }
   }
 
+  // Si es un partido programado, enviar notificación push automática
+  if (parsed.data.status === "scheduled") {
+    try {
+      const matchDate = datetime
+        ? new Date(datetime).toLocaleDateString("es-AR", {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : parsed.data.date;
+
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000";
+
+      await fetch(`${baseUrl}/api/push/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "🏟️ Nuevo partido programado",
+          body: `vs ${parsed.data.opponent} — ${matchDate}`,
+          url: `/matches/${match.id}`,
+        }),
+      }).catch(() => {
+        // Silently ignore push errors
+      });
+    } catch {
+      // Push notification is best-effort, don't fail the match creation
+    }
+  }
+
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/fixtures");
+  revalidatePath("/matches");
   revalidatePath("/admin/matches");
   revalidatePath("/admin/payments");
 
@@ -207,6 +241,7 @@ export async function updateMatch(
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/fixtures");
+  revalidatePath("/matches");
   revalidatePath("/admin/matches");
   revalidatePath("/admin/payments");
 
@@ -224,6 +259,7 @@ export async function deleteMatch(matchId: string): Promise<ActionResult> {
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/fixtures");
+  revalidatePath("/matches");
   revalidatePath("/admin/matches");
   revalidatePath("/admin/payments");
 

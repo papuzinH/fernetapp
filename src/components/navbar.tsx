@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Shield, Menu, X, Sun, Moon, Users } from "lucide-react";
+import { LayoutDashboard, Shield, Menu, X, Sun, Moon, Users, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import { PushNotificationOptIn } from "@/components/push-notification-opt-in";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/matches", label: "Partidos", icon: CalendarDays },
   { href: "/players", label: "Jugadores", icon: Users },
   { href: "/admin", label: "Admin", icon: Shield },
 ];

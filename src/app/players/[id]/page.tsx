@@ -262,22 +262,26 @@ export default async function PlayerDetailPage({ params }: PageProps) {
                   </TableHeader>
                   <TableBody>
                     {recentMatches.map((m) => (
-                      <TableRow key={m.match_id}>
+                      <TableRow key={m.match_id} className="cursor-pointer hover:bg-muted/50">
                         <TableCell className="whitespace-nowrap text-sm">
-                          {new Date(m.date + "T12:00:00").toLocaleDateString(
-                            "es-AR",
-                            {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "2-digit",
-                            }
-                          )}
+                          <Link href={`/matches/${m.match_id}`} className="block">
+                            {new Date(m.date + "T12:00:00").toLocaleDateString(
+                              "es-AR",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "2-digit",
+                              }
+                            )}
+                          </Link>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
                           {m.tournament_name} {m.tournament_year}
                         </TableCell>
                         <TableCell className="font-medium text-sm">
-                          {m.opponent}
+                          <Link href={`/matches/${m.match_id}`} className="hover:underline">
+                            {m.opponent}
+                          </Link>
                         </TableCell>
                         <TableCell className="text-center">
                           <Badge

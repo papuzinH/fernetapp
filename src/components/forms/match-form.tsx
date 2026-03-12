@@ -142,6 +142,7 @@ export function MatchForm({
               notes: "",
               player_stats: (data.player_stats ?? []).map((ps) => ({
                 ...ps,
+                played: false,
                 goals: 0,
                 assists: 0,
                 yellow_cards: 0,
