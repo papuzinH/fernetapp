@@ -58,7 +58,7 @@ export function TournamentCreateForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Crear Nuevo Torneo</CardTitle>
+        <CardTitle className="text-lg font-serif">Crear Nuevo Torneo</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>

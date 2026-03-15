@@ -31,7 +31,7 @@ export default async function EditMatchPage({ params }: PageProps) {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Editar Partido</h2>
+        <h2 className="text-3xl font-serif font-bold tracking-tight">Editar Partido</h2>
         <p className="text-muted-foreground">
           vs {match.opponent} — {new Date(match.date + "T12:00:00").toLocaleDateString("es-AR")}
         </p>

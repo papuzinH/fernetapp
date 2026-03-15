@@ -175,7 +175,7 @@ export function MatchForm({
         {/* Sección A — Datos del partido */}
         <Card>
           <CardHeader>
-            <CardTitle>Datos del Partido</CardTitle>
+            <CardTitle className="font-serif">Datos del Partido</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Status + basic fields */}
@@ -452,7 +452,7 @@ export function MatchForm({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between flex-wrap gap-2">
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 font-serif">
                 Stats de Jugadores
                 <WhatsAppParser
                   players={players.filter((p) => p.is_active).map((p) => ({

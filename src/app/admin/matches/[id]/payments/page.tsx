@@ -49,7 +49,7 @@ export default async function MatchPaymentsPage({
           </Button>
         </Link>
         <div>
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-serif font-bold">
             {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             Pagos: vs {match.opponent} ({(match as any).tournaments?.name})
           </h2>
@@ -76,7 +76,7 @@ export default async function MatchPaymentsPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold">
+            <div className="text-xl font-serif font-bold">
               ${totalAmount.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
             </div>
           </CardContent>
@@ -88,7 +88,7 @@ export default async function MatchPaymentsPage({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold text-green-600">
+            <div className="text-xl font-serif font-bold text-emerald-400">
               {paidCount} / {payments.length}
             </div>
           </CardContent>
@@ -117,7 +117,7 @@ export default async function MatchPaymentsPage({
                   </TableCell>
                   <TableCell className="text-center">
                     {p.status === "paid" ? (
-                      <Badge variant="secondary" className="bg-green-100 text-green-700">
+                      <Badge variant="secondary" className="bg-emerald-400/10 text-emerald-400">
                         Pagó
                       </Badge>
                     ) : (

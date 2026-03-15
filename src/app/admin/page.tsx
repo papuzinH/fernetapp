@@ -7,13 +7,13 @@ export default function AdminPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">¡Bienvenido, Admin Fernetero!</h2>
+        <h2 className="text-3xl font-serif font-bold tracking-tight">¡Bienvenido, Admin Fernetero!</h2>
         <p className="text-muted-foreground">
           Desde acá podés gestionar toda la data del equipo.
         </p>
       </div>
 
-      <div className="bg-stripes rounded-xl p-6 border border-border/40">
+      <div className="bg-stripes rounded-2xl p-6 border border-white/[0.06]">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader>
@@ -27,7 +27,7 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <Link href="/admin/matches/new">
-              <Button className="w-full gap-2">
+              <Button variant="gold" className="w-full gap-2">
                 <Plus className="h-4 w-4" /> Nuevo Partido
               </Button>
             </Link>
@@ -51,7 +51,7 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <Link href="/admin/players/new">
-              <Button className="w-full gap-2">
+              <Button variant="gold" className="w-full gap-2">
                 <Plus className="h-4 w-4" /> Nuevo Jugador
               </Button>
             </Link>
@@ -75,7 +75,7 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
             <Link href="/admin/tournaments">
-              <Button className="w-full gap-2">
+              <Button variant="gold" className="w-full gap-2">
                 <Plus className="h-4 w-4" /> Gestionar Torneos
               </Button>
             </Link>

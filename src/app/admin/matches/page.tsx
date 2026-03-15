@@ -34,7 +34,7 @@ export default async function MatchesAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Partidos</h2>
+          <h2 className="text-3xl font-serif font-bold tracking-tight">Partidos</h2>
           <p className="text-muted-foreground">
             {matches?.length ?? 0} partidos registrados. Editar o corregir datos del historial.
           </p>
@@ -65,10 +65,10 @@ export default async function MatchesAdminPage() {
                 {matches?.map((m) => {
                   const resultColor =
                     m.result === "V"
-                      ? "text-green-600 bg-green-50"
+                      ? "text-emerald-400 bg-emerald-400/10"
                       : m.result === "E"
-                        ? "text-yellow-600 bg-yellow-50"
-                        : "text-red-600 bg-red-50";
+                        ? "text-amber-400 bg-amber-400/10"
+                        : "text-red-400 bg-red-400/10";
                   const tournament = m.tournaments as unknown as {
                     name: string;
                     year: number;

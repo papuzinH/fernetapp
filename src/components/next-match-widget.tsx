@@ -47,7 +47,12 @@ export async function NextMatchWidget() {
 
   return (
     <Link href={`/matches/${nextMatch.id}`}>
-      <Card className="border-accent/30 bg-gradient-to-r from-accent/5 to-transparent overflow-hidden hover:border-accent/50 hover:shadow-md transition-all cursor-pointer">
+      <Card className="relative border-accent/20 overflow-hidden hover:border-accent/40 transition-all duration-300 hover:shadow-[0_0_40px_oklch(0.60_0.16_55/0.08)] cursor-pointer group">
+        {/* Gradient accent top border */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+        {/* Subtle radial glow */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 rounded-full bg-accent/5 blur-3xl pointer-events-none" />
+
         <CardContent className="pt-6 pb-5">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
             {/* Left: Match info */}
@@ -62,18 +67,18 @@ export async function NextMatchWidget() {
                 )}
               </div>
 
-              <p className="text-2xl sm:text-3xl font-black tracking-tight">
-                Fernet FC <span className="text-muted-foreground font-normal">vs</span>{" "}
+              <p className="text-2xl sm:text-3xl font-serif font-black tracking-tight">
+                Fernet FC <span className="text-muted-foreground font-sans font-normal text-xl">vs</span>{" "}
                 {nextMatch.opponent}
               </p>
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <Clock className="h-3.5 w-3.5" />
                   {formattedDate} — {formattedTime}hs
                 </span>
                 {nextMatch.location_name && (
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1.5">
                     <MapPin className="h-3.5 w-3.5" />
                     {nextMatch.location_name}
                   </span>
@@ -92,7 +97,7 @@ export async function NextMatchWidget() {
             {/* Right: Countdown */}
             {!isPast && (
               <div className="lg:text-right">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2 font-medium">
                   Faltan
                 </p>
                 <CountdownTimer targetDate={nextMatch.datetime!} />

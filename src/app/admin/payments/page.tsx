@@ -23,7 +23,7 @@ export default async function AdminPaymentsPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Estado de Cuenta</h2>
+      <h2 className="text-3xl font-serif font-bold">Estado de Cuenta</h2>
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -34,7 +34,7 @@ export default async function AdminPaymentsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
+            <div className="text-2xl font-serif font-bold text-red-400">
               ${totalDebt.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
             </div>
           </CardContent>
@@ -46,7 +46,7 @@ export default async function AdminPaymentsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-serif font-bold text-emerald-400">
               ${totalPaid.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
             </div>
           </CardContent>
@@ -58,7 +58,7 @@ export default async function AdminPaymentsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{playersWithDebt}</div>
+            <div className="text-2xl font-serif font-bold">{playersWithDebt}</div>
           </CardContent>
         </Card>
       </div>
@@ -105,11 +105,11 @@ export default async function AdminPaymentsPage() {
                       {d.pending_matches}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={debt > 0 ? "text-red-600 font-semibold" : ""}>
+                      <span className={debt > 0 ? "text-red-400 font-semibold" : ""}>
                         ${debt.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right text-green-600">
+                    <TableCell className="text-right text-emerald-400">
                       ${paid.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
                     </TableCell>
                     <TableCell className="text-right">

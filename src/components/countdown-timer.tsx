@@ -32,16 +32,18 @@ export function CountdownTimer({ targetDate }: CountdownTimerProps) {
 }
 
 function Sep() {
-  return <span className="text-2xl font-bold text-muted-foreground pb-4">:</span>;
+  return <span className="text-2xl font-bold text-accent/60 pb-5 animate-pulse-colon">:</span>;
 }
 
 function TimeUnit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center">
-      <span className="text-3xl sm:text-4xl font-black tabular-nums leading-none">
-        {String(value).padStart(2, "0")}
-      </span>
-      <span className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">
+      <div className="rounded-xl bg-white/[0.04] dark:bg-white/[0.06] border border-white/[0.06] px-2.5 sm:px-3.5 py-1.5 backdrop-blur-sm">
+        <span className="text-3xl sm:text-4xl font-serif font-black tabular-nums leading-none">
+          {String(value).padStart(2, "0")}
+        </span>
+      </div>
+      <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mt-1.5 font-medium">
         {label}
       </span>
     </div>

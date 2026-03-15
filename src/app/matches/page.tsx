@@ -67,7 +67,7 @@ export default async function MatchesPage({ searchParams }: PageProps) {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Partidos</h1>
+        <h1 className="text-4xl font-serif font-bold tracking-tight">Partidos</h1>
         <p className="text-muted-foreground">
           Todos los partidos de Fernet con Guaymallén
         </p>
@@ -83,7 +83,7 @@ export default async function MatchesPage({ searchParams }: PageProps) {
       {/* Próximos partidos */}
       {scheduledMatches.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
+          <h2 className="text-xl font-serif font-semibold flex items-center gap-2">
             <CalendarClock className="h-5 w-5 text-accent" />
             Próximos Partidos
           </h2>
@@ -97,10 +97,10 @@ export default async function MatchesPage({ searchParams }: PageProps) {
               const matchDatetime = m.datetime ? new Date(m.datetime) : null;
               return (
                 <Link key={m.id} href={`/matches/${m.id}`}>
-                  <Card className="hover:border-accent/60 hover:shadow-md transition-all cursor-pointer h-full border-dashed border-blue-300 dark:border-blue-800">
+                  <Card className="hover:border-accent/40 hover:shadow-[0_0_20px_oklch(0.60_0.16_55/0.1)] transition-all cursor-pointer h-full border-accent/15">
                     <CardContent className="pt-5 pb-4 space-y-2">
                       <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
+                        <Badge variant="gold" className="text-xs">
                           Programado
                         </Badge>
                         {tournament && (
@@ -109,8 +109,8 @@ export default async function MatchesPage({ searchParams }: PageProps) {
                           </span>
                         )}
                       </div>
-                      <p className="font-bold text-lg">
-                        Fernet FC <span className="text-muted-foreground font-normal">vs</span>{" "}
+                      <p className="font-serif font-bold text-lg">
+                        Fernet FC <span className="text-muted-foreground font-sans font-normal">vs</span>{" "}
                         {m.opponent}
                       </p>
                       {matchDatetime && (
@@ -159,10 +159,10 @@ export default async function MatchesPage({ searchParams }: PageProps) {
                 {completedMatches.map((m) => {
                   const resultColor =
                     m.result === "V"
-                      ? "text-green-600 bg-green-50"
+                      ? "text-emerald-400 bg-emerald-400/10"
                       : m.result === "E"
-                        ? "text-yellow-600 bg-yellow-50"
-                        : "text-red-600 bg-red-50";
+                        ? "text-amber-400 bg-amber-400/10"
+                        : "text-red-400 bg-red-400/10";
                   const tournament = m.tournaments as unknown as {
                     id: string;
                     name: string;

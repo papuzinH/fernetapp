@@ -62,7 +62,7 @@ export default async function FixturesPage({ searchParams }: PageProps) {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Fixture</h1>
+        <h1 className="text-4xl font-serif font-bold tracking-tight">Fixture</h1>
         <p className="text-muted-foreground">
           Todos los partidos de Fernet con Guaymallén
         </p>
@@ -94,10 +94,10 @@ export default async function FixturesPage({ searchParams }: PageProps) {
               {matches?.map((m) => {
                 const resultColor =
                   m.result === "V"
-                    ? "text-green-600 bg-green-50"
+                    ? "text-emerald-400 bg-emerald-400/10"
                     : m.result === "E"
-                      ? "text-yellow-600 bg-yellow-50"
-                      : "text-red-600 bg-red-50";
+                      ? "text-amber-400 bg-amber-400/10"
+                      : "text-red-400 bg-red-400/10";
                 const tournament = m.tournaments as unknown as {
                   id: string;
                   name: string;

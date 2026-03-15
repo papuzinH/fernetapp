@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Kanit, Geist_Mono } from "next/font/google";
+import { Kanit, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
@@ -14,13 +14,19 @@ const kanit = Kanit({
   style: ["normal", "italic"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+});
+
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0A192F",
+  themeColor: "#0A0A0B",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -63,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${kanit.variable} ${geistMono.variable} font-sans antialiased`}
+        className={`${kanit.variable} ${playfair.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <Providers>
           <TooltipProvider>

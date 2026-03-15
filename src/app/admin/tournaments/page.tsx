@@ -25,7 +25,7 @@ export default async function TournamentsAdminPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Torneos</h2>
+        <h2 className="text-3xl font-serif font-bold tracking-tight">Torneos</h2>
         <p className="text-muted-foreground">
           Gestionar los torneos y ligas del equipo.
         </p>

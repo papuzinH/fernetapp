@@ -75,7 +75,7 @@ export function PlayerForm({ existingPlayer }: PlayerFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-lg">
         <Card>
           <CardHeader>
-            <CardTitle>{isEditing ? "Editar Jugador" : "Nuevo Jugador"}</CardTitle>
+            <CardTitle className="font-serif">{isEditing ? "Editar Jugador" : "Nuevo Jugador"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField

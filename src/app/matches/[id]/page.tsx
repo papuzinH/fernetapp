@@ -100,10 +100,10 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
   const resultColor =
     match.result === "V"
-      ? "text-green-600 bg-green-100 dark:bg-green-950/50"
+      ? "text-emerald-400 bg-emerald-400/10"
       : match.result === "E"
-        ? "text-yellow-600 bg-yellow-100 dark:bg-yellow-950/50"
-        : "text-red-600 bg-red-100 dark:bg-red-950/50";
+        ? "text-amber-400 bg-amber-400/10"
+        : "text-red-400 bg-red-400/10";
 
   const resultLabel =
     match.result === "V"
@@ -130,8 +130,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
             <div className="flex flex-wrap items-center gap-2">
               {isScheduled && (
                 <Badge
-                  variant="outline"
-                  className="text-blue-600 border-blue-300"
+                  variant="gold"
                 >
                   Programado
                 </Badge>
@@ -145,9 +144,9 @@ export default async function MatchDetailPage({ params }: PageProps) {
 
             {/* Teams */}
             <div className="text-center space-y-2">
-              <p className="text-3xl sm:text-4xl font-black tracking-tight">
+              <p className="text-3xl sm:text-4xl font-serif font-black tracking-tight">
                 Fernet FC{" "}
-                <span className="text-muted-foreground font-normal text-xl sm:text-2xl">
+                <span className="text-muted-foreground font-sans font-normal text-xl sm:text-2xl">
                   vs
                 </span>{" "}
                 {match.opponent}
@@ -175,12 +174,12 @@ export default async function MatchDetailPage({ params }: PageProps) {
             {/* Match Info */}
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4" />
+                <Clock className="h-4 w-4 text-accent/60" />
                 {formattedDate}
               </span>
               {match.location_name && (
                 <span className="flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-4 w-4 text-accent/60" />
                   {match.location_name}
                 </span>
               )}
@@ -200,7 +199,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
             {/* Countdown for scheduled matches */}
             {isScheduled && matchDatetime && matchDatetime > now && (
               <div className="text-center pt-2">
-                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
                   Faltan
                 </p>
                 <CountdownTimer targetDate={match.datetime!} />
@@ -227,26 +226,26 @@ export default async function MatchDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Card>
             <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-bold">{match.goals_for}</p>
-              <p className="text-xs text-muted-foreground">Goles a favor</p>
+              <p className="text-2xl font-serif font-bold">{match.goals_for}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Goles a favor</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-bold">{match.goals_against}</p>
-              <p className="text-xs text-muted-foreground">Goles en contra</p>
+              <p className="text-2xl font-serif font-bold">{match.goals_against}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Goles en contra</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-bold">{match.yellow_cards}</p>
-              <p className="text-xs text-muted-foreground">🟨 Amarillas</p>
+              <p className="text-2xl font-serif font-bold">{match.yellow_cards}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">🟨 Amarillas</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-4 pb-3 text-center">
-              <p className="text-2xl font-bold">{match.red_cards}</p>
-              <p className="text-xs text-muted-foreground">🟥 Rojas</p>
+              <p className="text-2xl font-serif font-bold">{match.red_cards}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">🟥 Rojas</p>
             </CardContent>
           </Card>
         </div>
@@ -256,7 +255,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
       {isCompleted && playerStats.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Estadísticas Individuales</CardTitle>
+            <CardTitle className="text-xl font-serif">Estadísticas Individuales</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -307,11 +306,11 @@ export default async function MatchDetailPage({ params }: PageProps) {
         <Card>
           <CardHeader className="text-center">
             <div className="flex justify-center mb-2">
-              <div className="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-950 flex items-center justify-center">
-                <Star className="h-6 w-6 text-yellow-500" />
+              <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center">
+                <Star className="h-6 w-6 text-accent" />
               </div>
             </div>
-            <CardTitle>Figura del Partido</CardTitle>
+            <CardTitle className="font-serif">Figura del Partido</CardTitle>
           </CardHeader>
           <CardContent>
             <MvpVoteClient matchId={matchId} players={mvpPlayers} />
@@ -323,7 +322,7 @@ export default async function MatchDetailPage({ params }: PageProps) {
       {match.notes && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Notas</CardTitle>
+            <CardTitle className="text-lg font-serif">Notas</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">

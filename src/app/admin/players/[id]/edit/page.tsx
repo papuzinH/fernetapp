@@ -25,7 +25,7 @@ export default async function EditPlayerPage({ params }: PageProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Editar Jugador</h2>
+        <h2 className="text-3xl font-serif font-bold tracking-tight">Editar Jugador</h2>
         <p className="text-muted-foreground">{player.nickname}</p>
       </div>
       <PlayerForm existingPlayer={player} />

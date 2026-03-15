@@ -13,7 +13,7 @@ import { Loader2, LogIn } from "lucide-react";
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full gap-2">
+    <Button type="submit" disabled={pending} variant="gold" className="w-full gap-2">
       {pending ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
@@ -45,20 +45,20 @@ export default function LoginPage() {
             alt="Escudo Club Fernet con Guaymallén"
             width={72}
             height={72}
-            className="object-contain drop-shadow-lg"
+            className="object-contain drop-shadow-[0_0_20px_oklch(0.60_0.16_55/0.3)]"
             priority
           />
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white tracking-tight">
-              Fernet<span className="text-accent">App</span>
+            <h1 className="text-2xl font-serif font-bold text-white tracking-tight">
+              Fernet<span className="text-gradient-gold">App</span>
             </h1>
             <p className="text-white/60 text-sm mt-1">Panel de Administración</p>
           </div>
         </div>
 
-        <Card className="border-white/10 bg-white/5 backdrop-blur">
+        <Card className="border-white/[0.08] glass-card-strong">
           <CardHeader className="pb-4">
-            <h2 className="text-lg font-semibold text-white text-center">Iniciar Sesión</h2>
+            <h2 className="text-lg font-serif font-semibold text-white text-center">Iniciar Sesión</h2>
           </CardHeader>
           <CardContent>
             <form action={handleLogin} className="space-y-4">

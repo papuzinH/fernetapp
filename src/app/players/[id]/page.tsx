@@ -47,9 +47,9 @@ export default async function PlayerDetailPage({ params }: PageProps) {
   if (!career) notFound();
 
   const resultColor = (result: string) => {
-    if (result === "V") return "text-green-600 bg-green-50 dark:bg-green-950/40";
-    if (result === "E") return "text-yellow-600 bg-yellow-50 dark:bg-yellow-950/40";
-    return "text-red-600 bg-red-50 dark:bg-red-950/40";
+    if (result === "V") return "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+    if (result === "E") return "text-amber-400 bg-amber-500/10 border-amber-500/20";
+    return "text-red-400 bg-red-500/10 border-red-500/20";
   };
 
   return (
@@ -63,18 +63,18 @@ export default async function PlayerDetailPage({ params }: PageProps) {
       </Link>
 
       {/* Header del jugador */}
-      <div className="flex items-center gap-5">
-        <Avatar className="h-20 w-20 shrink-0">
-          <AvatarFallback className="text-2xl font-bold bg-primary text-primary-foreground">
+      <div className="flex items-center gap-6">
+        <Avatar className="h-24 w-24 shrink-0 ring-2 ring-accent/20">
+          <AvatarFallback className="text-3xl font-serif font-bold bg-primary text-primary-foreground">
             {career.nickname.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold tracking-tight">
               {career.nickname}
             </h1>
-            <Badge variant={career.is_active ? "default" : "secondary"}>
+            <Badge variant={career.is_active ? "gold" : "secondary"}>
               {career.is_active ? "Activo" : "Retirado"}
             </Badge>
           </div>
@@ -93,7 +93,7 @@ export default async function PlayerDetailPage({ params }: PageProps) {
 
       {/* Stats de carrera */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Stats de Carrera</h2>
+        <h2 className="text-2xl font-serif font-semibold mb-4">Stats de Carrera</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {[
             { label: "Partidos", value: career.matches_played },
@@ -113,8 +113,8 @@ export default async function PlayerDetailPage({ params }: PageProps) {
           ].map(({ label, value }) => (
             <Card key={label}>
               <CardContent className="pt-4 pb-3 text-center">
-                <p className="text-2xl font-bold">{value}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
+                <p className="text-2xl font-serif font-bold">{value}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">{label}</p>
               </CardContent>
             </Card>
           ))}

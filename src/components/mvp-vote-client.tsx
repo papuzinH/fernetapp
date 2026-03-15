@@ -115,8 +115,8 @@ export function MvpVoteClient({ matchId, players }: MvpVoteClientProps) {
       <div className="flex items-center gap-2 text-sm">
         {isOpen ? (
           <>
-            <Clock className="h-4 w-4 text-green-500" />
-            <span className="text-green-600 font-medium">Votación abierta</span>
+            <Clock className="h-4 w-4 text-emerald-400" />
+            <span className="text-emerald-400 font-medium">Votación abierta</span>
             {results?.deadline && (
               <span className="text-muted-foreground">
                 — cierra {new Date(results.deadline).toLocaleString("es-AR")}
@@ -149,7 +149,7 @@ export function MvpVoteClient({ matchId, players }: MvpVoteClientProps) {
               <Card
                 key={r.player_id}
                 className={idx === 0 && !isOpen && maxVotes > 0
-                  ? "border-yellow-400 dark:border-yellow-600 bg-yellow-50/50 dark:bg-yellow-950/20"
+                  ? "border-accent/40 bg-accent/5"
                   : ""
                 }
               >
@@ -163,7 +163,7 @@ export function MvpVoteClient({ matchId, players }: MvpVoteClientProps) {
                     <div className="flex items-center gap-2">
                       <span className="font-semibold truncate">{r.nickname}</span>
                       {idx === 0 && !isOpen && maxVotes > 0 && (
-                        <Trophy className="h-4 w-4 text-yellow-500" />
+                        <Trophy className="h-4 w-4 text-accent" />
                       )}
                     </div>
                     {/* Progress bar */}
@@ -178,7 +178,7 @@ export function MvpVoteClient({ matchId, players }: MvpVoteClientProps) {
                       />
                     </div>
                   </div>
-                  <span className="text-lg font-bold tabular-nums shrink-0">
+                  <span className="text-lg font-serif font-bold tabular-nums shrink-0">
                     {r.votes}
                   </span>
                 </CardContent>

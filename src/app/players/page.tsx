@@ -23,24 +23,24 @@ export default async function PlayersPage() {
     <div className="container mx-auto px-4 py-8 space-y-10">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Jugadores</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-4xl font-serif font-bold tracking-tight">Jugadores</h1>
+        <p className="text-muted-foreground mt-1.5">
           El plantel histórico de Fernet con Guaymallén
         </p>
       </div>
 
       {/* Plantel activo */}
       <section>
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+        <h2 className="text-xl font-semibold mb-5 flex items-center gap-2">
           Plantel Activo
-          <Badge variant="default">{active.length}</Badge>
+          <Badge variant="gold">{active.length}</Badge>
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           {active.map((player) => (
             <Link key={player.player_id} href={`/players/${player.player_id}`}>
-              <Card className="hover:border-accent/60 hover:shadow-md transition-all cursor-pointer h-full">
-                <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
-                  <Avatar className="h-14 w-14 text-lg font-bold">
+              <Card className="hover:border-accent/40 cursor-pointer h-full group">
+                <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2.5">
+                  <Avatar className="h-14 w-14 text-lg font-bold ring-2 ring-transparent group-hover:ring-accent/40 transition-all duration-300">
                     <AvatarFallback className="bg-primary text-primary-foreground text-base font-bold">
                       {player.nickname.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
@@ -63,19 +63,19 @@ export default async function PlayersPage() {
                   <div className="grid grid-cols-4 gap-1 w-full mt-1 text-center">
                     <div>
                       <p className="text-sm font-bold">{player.matches_played}</p>
-                      <p className="text-[10px] text-muted-foreground">PJ</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">PJ</p>
                     </div>
                     <div>
                       <p className="text-sm font-bold">{player.total_goals}</p>
-                      <p className="text-[10px] text-muted-foreground">Goles</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Goles</p>
                     </div>
                     <div>
                       <p className="text-sm font-bold">{player.total_assists}</p>
-                      <p className="text-[10px] text-muted-foreground">Asist.</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Asist.</p>
                     </div>
                     <div>
                       <p className="text-sm font-bold">{player.mvp_count}</p>
-                      <p className="text-[10px] text-muted-foreground">⭐ MVP</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">⭐ MVP</p>
                     </div>
                   </div>
                 </CardContent>
@@ -88,7 +88,7 @@ export default async function PlayersPage() {
       {/* Jugadores retirados / inactivos */}
       {inactive.length > 0 && (
         <section>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-muted-foreground">
+          <h2 className="text-xl font-semibold mb-5 flex items-center gap-2 text-muted-foreground">
             Jugadores Retirados
             <Badge variant="secondary">{inactive.length}</Badge>
           </h2>
@@ -98,8 +98,8 @@ export default async function PlayersPage() {
                 key={player.player_id}
                 href={`/players/${player.player_id}`}
               >
-                <Card className="hover:border-accent/60 hover:shadow-md transition-all cursor-pointer h-full opacity-70 hover:opacity-100">
-                  <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2">
+                <Card className="cursor-pointer h-full opacity-60 hover:opacity-100 transition-all duration-300">
+                  <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2.5">
                     <Avatar className="h-14 w-14">
                       <AvatarFallback className="bg-muted text-muted-foreground text-base font-bold">
                         {player.nickname.slice(0, 2).toUpperCase()}

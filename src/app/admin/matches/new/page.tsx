@@ -21,7 +21,7 @@ export default async function NewMatchPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Nuevo Partido</h2>
+        <h2 className="text-3xl font-serif font-bold tracking-tight">Nuevo Partido</h2>
         <p className="text-muted-foreground">
           Cargá los datos del partido y las estadísticas individuales.
         </p>

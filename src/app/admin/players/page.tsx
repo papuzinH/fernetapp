@@ -29,7 +29,7 @@ export default async function PlayersAdminPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Jugadores</h2>
+          <h2 className="text-3xl font-serif font-bold tracking-tight">Jugadores</h2>
           <p className="text-muted-foreground">
             {players?.length ?? 0} jugadores registrados
           </p>
@@ -70,7 +70,7 @@ export default async function PlayersAdminPage() {
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge
-                      variant={p.is_active ? "default" : "secondary"}
+                      variant={p.is_active ? "gold" : "secondary"}
                     >
                       {p.is_active ? "Activo" : "Inactivo"}
                     </Badge>

@@ -20,6 +20,9 @@ import {
   TrendingDown,
   Star,
   Award,
+  Swords,
+  Percent,
+  Crosshair,
 } from "lucide-react";
 import { NextMatchWidget } from "@/components/next-match-widget";
 import { InstagramWidget } from "@/components/instagram-widget";
@@ -79,10 +82,9 @@ export default async function DashboardPage() {
   const recentMatches = (recentMatchesData ?? []) as unknown as MatchWithTournament[];
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
-      {/* Hero Header */}
-      <div className="relative rounded-xl overflow-hidden text-white" style={{ minHeight: "200px" }}>
-        {/* Fondo: foto atmosférica */}
+    <div className="container mx-auto px-4 py-8 space-y-10">
+      {/* ── Hero Header ── */}
+      <div className="relative rounded-3xl overflow-hidden text-white" style={{ minHeight: "220px" }}>
         <Image
           src="/Gemini_Generated_Image_rirq81rirq81rirq.png"
           alt=""
@@ -90,121 +92,77 @@ export default async function DashboardPage() {
           className="object-cover object-center"
           priority
         />
-        {/* Overlay: gradiente naval de izquierda a derecha */}
-        <div className="absolute inset-0 bg-linear-to-r from-[#0A192F]/95 via-[#0A192F]/80 to-[#0A192F]/30" />
+        {/* Dramatic claroscuro overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0B]/95 via-[#0A0A0B]/75 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B]/60 via-transparent to-transparent" />
 
-        {/* Contenido */}
-        <div className="relative flex items-center justify-between px-6 md:px-10 py-8">
-          {/* Logo + Texto */}
-          <div className="flex items-center gap-5">
+        <div className="relative flex items-center justify-between px-6 md:px-10 py-10">
+          <div className="flex items-center gap-6">
             <Image
               src="/Escudo Fernet 2023 PNG.png"
               alt="Escudo Club Atlético Fernet con Guaymallén"
-              width={88}
-              height={88}
-              className="object-contain drop-shadow-xl shrink-0"
+              width={96}
+              height={96}
+              className="object-contain drop-shadow-[0_0_20px_oklch(0.60_0.16_55/0.3)] shrink-0"
               priority
             />
             <div>
-              <p className="text-white/50 text-xs font-semibold tracking-[0.2em] uppercase mb-1">
+              <p className="text-white/40 text-xs font-semibold tracking-[0.25em] uppercase mb-1.5">
                 Club Atlético
               </p>
-              <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
+              <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight leading-none">
                 Fernet con Guaymallén
               </h1>
-              <p className="text-white/60 text-sm mt-1">Historial Fernetero</p>
+              <p className="text-white/50 text-sm mt-2 tracking-wide">Historial Fernetero</p>
             </div>
           </div>
-
-       
         </div>
       </div>
 
-      {/* Next Match Widget */}
+      {/* ── Next Match Widget ── */}
       <NextMatchWidget />
 
-      {/* Team Summary Cards */}
+      {/* ── Team Summary — Bento Grid ── */}
       {team && (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Partidos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{team.total_matches}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                <TrendingUp className="h-3 w-3 text-green-600" /> Victorias
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {team.wins}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                <Minus className="h-3 w-3 text-yellow-600" /> Empates
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">
-                {team.draws}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                <TrendingDown className="h-3 w-3 text-red-600" /> Derrotas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">
-                {team.losses}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Efectividad
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{team.win_percentage}%</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Dif. de Gol
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {team.goal_difference > 0 ? "+" : ""}
-                {team.goal_difference}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {team.total_goals_for} GF / {team.total_goals_against} GC
-              </p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[
+            { label: "Partidos", value: team.total_matches, icon: Swords, color: "" },
+            { label: "Victorias", value: team.wins, icon: TrendingUp, color: "text-emerald-400" },
+            { label: "Empates", value: team.draws, icon: Minus, color: "text-amber-400" },
+            { label: "Derrotas", value: team.losses, icon: TrendingDown, color: "text-red-400" },
+            { label: "Efectividad", value: `${team.win_percentage}%`, icon: Percent, color: "" },
+            {
+              label: "Dif. de Gol",
+              value: `${team.goal_difference > 0 ? "+" : ""}${team.goal_difference}`,
+              icon: Crosshair,
+              color: "",
+              sub: `${team.total_goals_for} GF / ${team.total_goals_against} GC`,
+            },
+          ].map((stat) => (
+            <Card key={stat.label}>
+              <CardContent className="pt-5 pb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <stat.icon className={`h-4 w-4 ${stat.color || "text-muted-foreground"}`} />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    {stat.label}
+                  </p>
+                </div>
+                <p className={`text-3xl font-serif font-bold tracking-tight ${stat.color}`}>
+                  {stat.value}
+                </p>
+                {stat.sub && (
+                  <p className="text-xs text-muted-foreground mt-1">{stat.sub}</p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
-      {/* Salón de la Fama */}
-      <div className="bg-stripes rounded-xl p-6 border border-border/40 space-y-4">
-        <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <Trophy className="h-6 w-6 text-accent" />
+      {/* ── Salón de la Fama ── */}
+      <div className="bg-stripes rounded-2xl p-6 md:p-8 border border-border/30 dark:border-white/[0.04] space-y-6">
+        <h2 className="text-3xl font-serif font-bold tracking-tight flex items-center gap-3">
+          <Trophy className="h-7 w-7 text-accent" />
           Salón de la Fama
         </h2>
 
@@ -382,9 +340,9 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      {/* Últimos Partidos */}
+      {/* ── Últimos Partidos ── */}
       <div>
-        <h2 className="text-2xl font-bold tracking-tight mb-4">
+        <h2 className="text-3xl font-serif font-bold tracking-tight mb-5">
           Últimos Partidos
         </h2>
         <Card>
@@ -403,10 +361,10 @@ export default async function DashboardPage() {
                 {recentMatches?.map((m) => {
                   const resultColor =
                     m.result === "V"
-                      ? "text-green-600 bg-green-50"
+                      ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
                       : m.result === "E"
-                        ? "text-yellow-600 bg-yellow-50"
-                        : "text-red-600 bg-red-50";
+                        ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
+                        : "text-red-400 bg-red-500/10 border-red-500/20";
                   const tournament = m.tournaments as unknown as {
                     name: string;
                     year: number;
@@ -480,7 +438,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Instagram Widget */}
+        {/* ── Instagram Widget ── */}
         <InstagramWidget />
       </div>
     </div>

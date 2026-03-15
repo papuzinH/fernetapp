@@ -38,7 +38,7 @@ export function PaymentToggleButton({ paymentId, currentStatus }: Props) {
       size="sm"
       onClick={handleToggle}
       disabled={isPending}
-      className="text-green-600 hover:text-green-700 hover:bg-green-50 gap-1"
+      className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-400/10 gap-1"
     >
       <Check className="h-3.5 w-3.5" />
       {isPending ? "..." : "Marcar pagado"}
