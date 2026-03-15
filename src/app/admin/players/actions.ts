@@ -22,6 +22,7 @@ export async function createPlayer(
     full_name: parsed.data.full_name || null,
     position: parsed.data.position ?? null,
     is_active: parsed.data.is_active,
+    avatar_url: parsed.data.avatar_url || null,
   });
 
   if (error) {
@@ -59,6 +60,7 @@ export async function updatePlayer(
       full_name: parsed.data.full_name || null,
       position: parsed.data.position ?? null,
       is_active: parsed.data.is_active,
+      avatar_url: parsed.data.avatar_url ?? undefined,
     })
     .eq("id", playerId);
 

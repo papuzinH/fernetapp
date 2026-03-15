@@ -22,12 +22,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Save } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Loader2, Save, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createPlayer, updatePlayer } from "@/app/admin/players/actions";
 import type { Player } from "@/lib/supabase/types";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 interface PlayerFormProps {
   existingPlayer?: Player;
@@ -36,6 +38,11 @@ interface PlayerFormProps {
 export function PlayerForm({ existingPlayer }: PlayerFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    existingPlayer?.avatar_url ?? null
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditing = !!existingPlayer;
 
   const form = useForm<PlayerFormValues>({
@@ -46,8 +53,55 @@ export function PlayerForm({ existingPlayer }: PlayerFormProps) {
       full_name: existingPlayer?.full_name ?? "",
       position: existingPlayer?.position ?? null,
       is_active: existingPlayer?.is_active ?? true,
+      avatar_url: existingPlayer?.avatar_url ?? null,
     },
   });
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Solo se permiten imágenes JPG, PNG o WebP");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("La imagen no puede superar 2 MB");
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const ext = file.name.split(".").pop() ?? "jpg";
+      const fileName = `${crypto.randomUUID()}.${ext}`;
+      const supabase = createClient();
+
+      const { error } = await supabase.storage
+        .from("player-avatars")
+        .upload(fileName, file, { upsert: false });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("player-avatars")
+        .getPublicUrl(fileName);
+
+      form.setValue("avatar_url", publicUrl);
+      setPreviewUrl(publicUrl);
+      toast.success("Foto subida correctamente");
+    } catch {
+      toast.error("Error al subir la foto");
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
+  function handleRemoveAvatar() {
+    form.setValue("avatar_url", null);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
   async function onSubmit(data: PlayerFormValues) {
     setIsSubmitting(true);
@@ -78,6 +132,60 @@ export function PlayerForm({ existingPlayer }: PlayerFormProps) {
             <CardTitle className="font-serif">{isEditing ? "Editar Jugador" : "Nuevo Jugador"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Avatar Upload */}
+            <div className="flex flex-col gap-3">
+              <FormLabel>Foto del Jugador</FormLabel>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20 shrink-0 ring-2 ring-border">
+                  {previewUrl ? (
+                    <AvatarImage src={previewUrl} alt="Avatar" className="object-cover" />
+                  ) : null}
+                  <AvatarFallback className="bg-muted text-muted-foreground text-lg font-bold">
+                    {form.watch("nickname")?.slice(0, 2).toUpperCase() || "??"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    disabled={avatarUploading}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {avatarUploading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    {avatarUploading ? "Subiendo..." : "Subir foto"}
+                  </Button>
+                  {previewUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="gap-2 text-muted-foreground hover:text-destructive"
+                      onClick={handleRemoveAvatar}
+                    >
+                      <X className="h-4 w-4" />
+                      Quitar foto
+                    </Button>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    JPG, PNG o WebP · Máx. 2 MB
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <FormField
               control={form.control}
               name="nickname"

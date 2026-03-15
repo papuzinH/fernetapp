@@ -43,8 +43,13 @@ export function MotionCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94], delay }}
-      whileHover={{ y: -2, transition: { duration: 0.2 } }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{
+        y: -3,
+        boxShadow:
+          "0 8px 40px oklch(0 0 0 / 50%), 0 0 28px oklch(0.60 0.16 55 / 22%), 0 0 64px oklch(0.60 0.16 55 / 8%)",
+        transition: { duration: 0.22 },
+      }}
+      whileTap={{ scale: 0.97, boxShadow: "0 2px 12px oklch(0 0 0 / 40%)" }}
       className={className}
       {...props}
     >

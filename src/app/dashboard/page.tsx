@@ -83,9 +83,9 @@ export default async function DashboardPage() {
   const recentMatches = (recentMatchesData ?? []) as unknown as MatchWithTournament[];
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-10">
+    <div className="container mx-auto px-3 sm:px-4 py-8 space-y-10">
       {/* ── Hero Header ── */}
-      <div className="relative rounded-3xl overflow-hidden text-white" style={{ minHeight: "220px" }}>
+      <div className="relative rounded-3xl overflow-hidden text-white" >
         <Image
           src="/Gemini_Generated_Image_rirq81rirq81rirq.png"
           alt=""
@@ -97,21 +97,21 @@ export default async function DashboardPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0B]/95 via-[#0A0A0B]/75 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B]/60 via-transparent to-transparent" />
 
-        <div className="relative flex items-center justify-between px-6 md:px-10 py-10">
-          <div className="flex items-center gap-6">
+        <div className="relative flex items-center justify-between px-4 sm:px-6 md:px-10 py-8 sm:py-10">
+          <div className="flex items-center gap-4 sm:gap-6 min-w-0">
             <Image
               src="/Escudo Fernet 2023 PNG.png"
               alt="Escudo Club Atlético Fernet con Guaymallén"
               width={96}
               height={96}
-              className="object-contain drop-shadow-[0_0_20px_oklch(0.60_0.16_55/0.3)] shrink-0"
+              className="object-contain drop-shadow-[0_0_20px_oklch(0.60_0.16_55/0.3)] shrink-0 w-16 h-16 sm:w-24 sm:h-24"
               priority
             />
-            <div>
+            <div className="min-w-0">
               <p className="text-white/40 text-xs font-semibold tracking-[0.25em] uppercase mb-1.5">
                 Club Atlético
               </p>
-              <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight leading-none">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-serif font-black tracking-tight leading-none">
                 Fernet con Guaymallén
               </h1>
               <p className="text-white/50 text-sm mt-2 tracking-wide">Historial Fernetero</p>
@@ -164,13 +164,13 @@ export default async function DashboardPage() {
       )}
 
       {/* ── Salón de la Fama ── */}
-      <div className="bg-stripes rounded-2xl p-6 md:p-8 border border-border/30 dark:border-white/[0.04] space-y-6">
+      <div className="bg-stripes rounded-2xl p-3 sm:p-6 md:p-8 border border-border/30 dark:border-white/[0.04] space-y-6">
         <h2 className="text-3xl font-serif font-bold tracking-tight flex items-center gap-3">
           <Trophy className="h-7 w-7 text-accent" />
           Salón de la Fama
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        
           {/* Top Goleadores */}
           <Card>
             <CardHeader>
@@ -179,7 +179,7 @@ export default async function DashboardPage() {
                 Goleadores Históricos
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-2 sm:px-6">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -239,7 +239,7 @@ export default async function DashboardPage() {
                 Asistidores Históricos
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-2 sm:px-6">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -290,7 +290,7 @@ export default async function DashboardPage() {
               </Table>
             </CardContent>
           </Card>
-        </div>
+       
 
         {/* Top MVPs */}
         {mvps.length > 0 && (
@@ -301,7 +301,7 @@ export default async function DashboardPage() {
                 Más Valiosos
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-2 sm:px-6">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -350,7 +350,7 @@ export default async function DashboardPage() {
           Últimos Partidos
         </h2>
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="px-2 sm:px-6 pt-6">
             <Table>
               <TableHeader>
                 <TableRow>

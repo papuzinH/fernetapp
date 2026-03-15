@@ -8,7 +8,7 @@ import {
 import { getPlayerDebt, getPlayerPayments } from "@/lib/supabase/queries/payments";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
   TableBody,
@@ -65,6 +65,9 @@ export default async function PlayerDetailPage({ params }: PageProps) {
       {/* Header del jugador */}
       <div className="flex items-center gap-6">
         <Avatar className="h-24 w-24 shrink-0 ring-2 ring-accent/20">
+          {career.avatar_url && (
+            <AvatarImage src={career.avatar_url} alt={career.nickname} className="object-cover" />
+          )}
           <AvatarFallback className="text-3xl font-serif font-bold bg-primary text-primary-foreground">
             {career.nickname.slice(0, 2).toUpperCase()}
           </AvatarFallback>

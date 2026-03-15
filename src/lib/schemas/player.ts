@@ -8,6 +8,7 @@ export const playerSchema = z.object({
   full_name: z.string().max(100).optional().or(z.literal("")),
   position: z.enum(["ARQ", "DEF", "MED", "DEL"]).optional().nullable(),
   is_active: z.boolean().default(true),
+  avatar_url: z.string().optional().nullable(),
 });
 
 export type PlayerFormValues = z.infer<typeof playerSchema>;

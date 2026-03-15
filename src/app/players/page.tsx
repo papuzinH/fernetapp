@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getPublicPlayers } from "@/lib/supabase/queries/players";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const positionLabel: Record<string, string> = {
   ARQ: "Arquero",
@@ -41,6 +41,9 @@ export default async function PlayersPage() {
               <Card className="hover:border-accent/40 cursor-pointer h-full group">
                 <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2.5">
                   <Avatar className="h-14 w-14 text-lg font-bold ring-2 ring-transparent group-hover:ring-accent/40 transition-all duration-300">
+                    {player.avatar_url && (
+                      <AvatarImage src={player.avatar_url} alt={player.nickname} className="object-cover" />
+                    )}
                     <AvatarFallback className="bg-primary text-primary-foreground text-base font-bold">
                       {player.nickname.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
@@ -60,20 +63,20 @@ export default async function PlayersPage() {
                       {positionLabel[player.position] ?? player.position}
                     </Badge>
                   )}
-                  <div className="grid grid-cols-4 gap-1 w-full mt-1 text-center">
-                    <div>
+                  <div className="flex justify-center items-center gap-1 w-full mt-1 text-center flex-wrap">
+                    <div className="w-[50%] sm:w-auto">
                       <p className="text-sm font-bold">{player.matches_played}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">PJ</p>
                     </div>
-                    <div>
+                    <div className="w-[50%] sm:w-auto">
                       <p className="text-sm font-bold">{player.total_goals}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Goles</p>
                     </div>
-                    <div>
+                    <div className="w-[50%] sm:w-auto">
                       <p className="text-sm font-bold">{player.total_assists}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Asist.</p>
                     </div>
-                    <div>
+                    <div className="w-[50%] sm:w-auto">
                       <p className="text-sm font-bold">{player.mvp_count}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">⭐ MVP</p>
                     </div>
@@ -101,6 +104,9 @@ export default async function PlayersPage() {
                 <Card className="cursor-pointer h-full opacity-60 hover:opacity-100 transition-all duration-300">
                   <CardContent className="pt-5 pb-4 flex flex-col items-center text-center gap-2.5">
                     <Avatar className="h-14 w-14">
+                      {player.avatar_url && (
+                        <AvatarImage src={player.avatar_url} alt={player.nickname} className="object-cover" />
+                      )}
                       <AvatarFallback className="bg-muted text-muted-foreground text-base font-bold">
                         {player.nickname.slice(0, 2).toUpperCase()}
                       </AvatarFallback>

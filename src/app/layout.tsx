@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Kanit, Geist_Mono, Playfair_Display } from "next/font/google";
+import { Plus_Jakarta_Sans, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "@/components/providers";
@@ -7,17 +7,17 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 
-const kanit = Kanit({
+const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-kanit",
   subsets: ["latin"],
-  weight: ["400", "600", "700", "900"],
+  weight: ["400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
 });
 
-const playfair = Playfair_Display({
+const spaceGrotesk = Space_Grotesk({
   variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -69,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body
-        className={`${kanit.variable} ${playfair.variable} ${geistMono.variable} font-sans antialiased`}
+        className={`${plusJakartaSans.variable} ${spaceGrotesk.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <Providers>
           <TooltipProvider>

@@ -1,17 +1,10 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { FixtureFilters } from "@/app/dashboard/fixtures/fixture-filters";
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, MapPin, Shield } from "lucide-react";
 import type { Match, Tournament } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
@@ -24,11 +17,24 @@ interface PageProps {
   searchParams: Promise<{ tournament?: string; year?: string; status?: string }>;
 }
 
+function OpponentAvatar({ name }: { name: string }) {
+  const initials = name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join("");
+  return (
+    <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+      <span className="text-sm font-bold text-white/80">{initials}</span>
+    </div>
+  );
+}
+
 export default async function MatchesPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const supabase = await createServerSupabaseClient();
 
-  // Fetch tournaments for filter
   const { data: tournamentsData } = await supabase
     .from("tournaments")
     .select("*")
@@ -36,7 +42,6 @@ export default async function MatchesPage({ searchParams }: PageProps) {
 
   const tournaments = (tournamentsData ?? []) as Tournament[];
 
-  // Fetch matches with optional filters
   let query = supabase
     .from("matches")
     .select("*, tournaments(id, name, year)")
@@ -56,18 +61,19 @@ export default async function MatchesPage({ searchParams }: PageProps) {
   const { data: matchesData } = await query;
   const allMatches = (matchesData ?? []) as unknown as MatchWithTournament[];
 
-  // Separate completed and scheduled
   const completedMatches = allMatches.filter((m) => m.status === "completed");
   const scheduledMatches = allMatches.filter((m) => m.status === "scheduled");
 
-  const years = [
-    ...new Set(tournaments.map((t) => t.year)),
-  ].sort((a, b) => b - a);
+  const years = [...new Set(tournaments.map((t) => t.year))].sort(
+    (a, b) => b - a
+  );
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto px-4 py-8 space-y-8">
       <div>
-        <h1 className="text-4xl font-serif font-bold tracking-tight">Partidos</h1>
+        <h1 className="text-4xl font-serif font-bold tracking-tight">
+          Partidos
+        </h1>
         <p className="text-muted-foreground">
           Todos los partidos de Fernet con Guaymallén
         </p>
@@ -82,7 +88,7 @@ export default async function MatchesPage({ searchParams }: PageProps) {
 
       {/* Próximos partidos */}
       {scheduledMatches.length > 0 && (
-        <div className="space-y-3">
+        <section className="space-y-4">
           <h2 className="text-xl font-serif font-semibold flex items-center gap-2">
             <CalendarClock className="h-5 w-5 text-accent" />
             Próximos Partidos
@@ -97,20 +103,23 @@ export default async function MatchesPage({ searchParams }: PageProps) {
               const matchDatetime = m.datetime ? new Date(m.datetime) : null;
               return (
                 <Link key={m.id} href={`/matches/${m.id}`}>
-                  <Card className="hover:border-accent/40 hover:shadow-[0_0_20px_oklch(0.60_0.16_55/0.1)] transition-all cursor-pointer h-full border-accent/15">
-                    <CardContent className="pt-5 pb-4 space-y-2">
+                  <Card className="cursor-pointer h-full hover:scale-[0.98] active:scale-[0.96] transition-transform">
+                    <CardContent className="pt-5 pb-5 space-y-3">
                       <div className="flex items-center justify-between">
                         <Badge variant="gold" className="text-xs">
                           Programado
                         </Badge>
                         {tournament && (
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground truncate max-w-40">
                             {tournament.name} {tournament.year}
                           </span>
                         )}
                       </div>
-                      <p className="font-serif font-bold text-lg">
-                        Fernet FC <span className="text-muted-foreground font-sans font-normal">vs</span>{" "}
+                      <p className="font-serif font-bold text-lg leading-tight">
+                        Fernet con Guaymallén{" "}
+                        <span className="text-muted-foreground font-sans font-normal text-base">
+                          vs
+                        </span>{" "}
                         {m.opponent}
                       </p>
                       {matchDatetime && (
@@ -120,15 +129,18 @@ export default async function MatchesPage({ searchParams }: PageProps) {
                             day: "2-digit",
                             month: "long",
                           })}{" "}
-                          — {matchDatetime.toLocaleTimeString("es-AR", {
+                          —{" "}
+                          {matchDatetime.toLocaleTimeString("es-AR", {
                             hour: "2-digit",
                             minute: "2-digit",
-                          })}hs
+                          })}
+                          hs
                         </p>
                       )}
                       {m.location_name && (
-                        <p className="text-xs text-muted-foreground">
-                          📍 {m.location_name}
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {m.location_name}
                         </p>
                       )}
                     </CardContent>
@@ -137,97 +149,138 @@ export default async function MatchesPage({ searchParams }: PageProps) {
               );
             })}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Partidos completados */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="overflow-x-auto">
-            <Table className="min-w-[400px]">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead className="hidden sm:table-cell">Torneo</TableHead>
-                  <TableHead>Rival</TableHead>
-                  <TableHead className="text-center">Resultado</TableHead>
-                  <TableHead className="hidden sm:table-cell text-center">🟨</TableHead>
-                  <TableHead className="hidden sm:table-cell text-center">🟥</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {completedMatches.map((m) => {
-                  const resultColor =
-                    m.result === "V"
-                      ? "text-emerald-400 bg-emerald-400/10"
-                      : m.result === "E"
-                        ? "text-amber-400 bg-amber-400/10"
-                        : "text-red-400 bg-red-400/10";
-                  const tournament = m.tournaments as unknown as {
-                    id: string;
-                    name: string;
-                    year: number;
-                  } | null;
-                  return (
-                    <TableRow key={m.id} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell className="whitespace-nowrap">
-                        <Link href={`/matches/${m.id}`} className="block">
-                          {new Date(m.date + "T12:00:00").toLocaleDateString(
-                            "es-AR",
-                            {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                            }
-                          )}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-sm">
-                        <Link href={`/matches/${m.id}`} className="block">
-                          {tournament
-                            ? `${tournament.name} ${tournament.year}`
-                            : "-"}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <Link href={`/matches/${m.id}`} className="block">
+      <section className="space-y-4">
+        <h2 className="text-xl font-serif font-semibold flex items-center gap-2">
+          <Shield className="h-5 w-5 text-accent" />
+          Últimos Partidos
+        </h2>
+
+        {completedMatches.length === 0 ? (
+          <Card className="py-8">
+            <CardContent className="text-center text-muted-foreground">
+              No se encontraron partidos con los filtros seleccionados.
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {completedMatches.map((m) => {
+              const tournament = m.tournaments as unknown as {
+                id: string;
+                name: string;
+                year: number;
+              } | null;
+
+              const resultLabel =
+                m.result === "V"
+                  ? "Victoria"
+                  : m.result === "E"
+                    ? "Empate"
+                    : "Derrota";
+              const resultClasses =
+                m.result === "V"
+                  ? "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"
+                  : m.result === "E"
+                    ? "text-amber-400 bg-amber-400/10 border-amber-400/20"
+                    : "text-red-400 bg-red-400/10 border-red-400/20";
+              const scoreColor =
+                m.result === "V"
+                  ? "text-emerald-400"
+                  : m.result === "E"
+                    ? "text-amber-400"
+                    : "text-red-400";
+
+              const dateStr = new Date(
+                m.date + "T12:00:00"
+              ).toLocaleDateString("es-AR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              });
+
+              return (
+                <Link key={m.id} href={`/matches/${m.id}`}>
+                  <Card className="cursor-pointer h-full overflow-hidden py-0 gap-0 group hover:scale-[0.98] active:scale-[0.96] transition-transform">
+                    {/* Header: fecha + torneo */}
+                    <div className="bg-white/4 px-5 py-3 text-center border-b border-white/6">
+                      <p className="text-xs font-semibold text-foreground/90 tracking-wide">
+                        {dateStr}
+                      </p>
+                      {tournament && (
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {tournament.name} {tournament.year}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Cuerpo: equipos + marcador */}
+                    <div className="px-5 py-6 flex items-center justify-between gap-4">
+                      {/* Equipo local */}
+                      <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                        <Image
+                          src="/Escudo Fernet 2023 PNG.png"
+                          alt="Fernet con Guaymallén"
+                          width={48}
+                          height={48}
+                          className="w-12 h-12 object-contain drop-shadow-[0_0_8px_oklch(0.60_0.16_55/0.4)] group-hover:drop-shadow-[0_0_12px_oklch(0.60_0.16_55/0.6)] transition-all"
+                        />
+                        <span className="text-[11px] font-medium text-center text-foreground/80 leading-tight">
+                          Fernet con
+                          <br />
+                          Guaymallén
+                        </span>
+                      </div>
+
+                      {/* Marcador */}
+                      <div className="flex flex-col items-center gap-2 shrink-0">
+                        <span
+                          className={`text-3xl font-black font-mono tracking-tight ${scoreColor}`}
+                        >
+                          {m.goals_for} - {m.goals_against}
+                        </span>
+                        <span
+                          className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-0.5 rounded-full border ${resultClasses}`}
+                        >
+                          {resultLabel}
+                        </span>
+                      </div>
+
+                      {/* Equipo visitante */}
+                      <div className="flex flex-col items-center gap-2 flex-1 min-w-0">
+                        <OpponentAvatar name={m.opponent} />
+                        <span className="text-[11px] font-medium text-center text-foreground/80 leading-tight">
                           {m.opponent}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Link href={`/matches/${m.id}`}>
-                          <Badge
-                            variant="secondary"
-                            className={`font-mono font-bold ${resultColor}`}
-                          >
-                            {m.goals_for} - {m.goals_against}
-                          </Badge>
-                        </Link>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-center">
-                        {m.yellow_cards > 0 ? m.yellow_cards : "-"}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell text-center">
-                        {m.red_cards > 0 ? m.red_cards : "-"}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {completedMatches.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center text-muted-foreground py-8"
-                    >
-                      No se encontraron partidos completados con los filtros seleccionados.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Footer: tarjetas (si hay) */}
+                    {(m.yellow_cards > 0 || m.red_cards > 0) && (
+                      <div className="px-5 pb-4 flex items-center justify-center gap-3 border-t border-white/6 pt-3">
+                        {m.yellow_cards > 0 && (
+                          <span className="flex items-center gap-1 text-xs text-amber-400/80">
+                            <span className="inline-block w-3 h-4 bg-amber-400 rounded-[2px]" />
+                            {m.yellow_cards}
+                          </span>
+                        )}
+                        {m.red_cards > 0 && (
+                          <span className="flex items-center gap-1 text-xs text-red-400/80">
+                            <span className="inline-block w-3 h-4 bg-red-500 rounded-[2px]" />
+                            {m.red_cards}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </section>
     </div>
   );
 }

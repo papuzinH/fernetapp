@@ -72,7 +72,7 @@ export default async function PosicionesPage() {
 
       {/* Table */}
       <Card>
-        <CardContent className="pt-6">
+        <CardContent className="px-2 sm:px-6 pt-6">
           <Table>
             <TableCaption>
               Datos de tifa.com.ar · Actualizado: {updatedTime}
