@@ -25,6 +25,7 @@ import {
   Crosshair,
 } from "lucide-react";
 import { NextMatchWidget } from "@/components/next-match-widget";
+import { CurrentPositionWidget } from "@/components/current-position-widget";
 import { InstagramWidget } from "@/components/instagram-widget";
 import type { PlayerCareerStats, TeamSummary, Match } from "@/lib/supabase/types";
 
@@ -121,6 +122,9 @@ export default async function DashboardPage() {
 
       {/* ── Next Match Widget ── */}
       <NextMatchWidget />
+
+      {/* ── Current Position Widget ── */}
+      <CurrentPositionWidget />
 
       {/* ── Team Summary — Bento Grid ── */}
       {team && (
