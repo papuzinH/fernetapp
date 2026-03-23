@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Star, Trophy, Clock, CheckCircle } from "lucide-react";
+import { Star, Trophy, Clock, CheckCircle, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface MvpVoteClientProps {
@@ -109,6 +109,12 @@ export function MvpVoteClient({ matchId, players }: MvpVoteClientProps) {
   const showResults = hasVoted || !isOpen;
   const maxVotes = results?.results.reduce((max, r) => Math.max(max, r.votes), 0) ?? 0;
 
+  function handleWhatsAppShare() {
+    const url = window.location.href;
+    const text = `¡Vota al MVP fernetero de la fecha! 🌟⚽ Hacé click y elegí tu figura: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  }
+
   return (
     <div className="space-y-6">
       {/* Status banner */}
@@ -135,6 +141,18 @@ export function MvpVoteClient({ matchId, players }: MvpVoteClientProps) {
           </Badge>
         )}
       </div>
+
+      {/* WhatsApp share — only when voting is open */}
+      {isOpen && (
+        <button
+          onClick={handleWhatsAppShare}
+          className="w-full flex items-center justify-center gap-2.5 rounded-xl px-4 py-3 text-sm font-semibold text-white transition-all active:scale-95 hover:brightness-110"
+          style={{ backgroundColor: "#25D366" }}
+        >
+          <MessageCircle className="h-5 w-5 fill-white stroke-none" />
+          Vota al MVP fernetero de la fecha!
+        </button>
+      )}
 
       {/* Voting & Results */}
       {showResults ? (
