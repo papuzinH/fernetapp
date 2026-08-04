@@ -184,7 +184,13 @@ export default async function StatsPage({ searchParams }: PageProps) {
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-border" />
           <p className="text-xs uppercase tracking-widest text-muted-foreground">
-            Análisis histórico · desde 2017
+            {/* El rango sale de los datos, no hardcodeado: el equipo existe
+                desde 2017 pero lo cargado en la base arranca en 2023, y poner
+                el año del club acá haría que la página muestre una fecha que
+                sus propios números no respaldan. */}
+            Análisis histórico
+            {seasons.length > 0 &&
+              ` · ${seasons[0].season_year}–${seasons[seasons.length - 1].season_year}`}
           </p>
           <div className="h-px flex-1 bg-border" />
         </div>
