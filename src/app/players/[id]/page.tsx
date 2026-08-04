@@ -150,9 +150,10 @@ export default async function PlayerDetailPage({ params }: PageProps) {
           )}
           {payments.length > 0 && (
             <Card>
-              <CardContent className="pt-6">
-                <div className="overflow-x-auto">
-                  <Table className="min-w-[380px]">
+              <CardContent className="pt-6 px-3 sm:px-6">
+                {/* ── Desktop ── */}
+                <div className="hidden sm:block">
+                  <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Fecha</TableHead>
@@ -191,6 +192,39 @@ export default async function PlayerDetailPage({ params }: PageProps) {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* ── Mobile ── */}
+                <ul className="sm:hidden divide-y">
+                  {payments.slice(0, 10).map((p) => (
+                    <li
+                      key={p.id}
+                      className="flex items-center justify-between gap-3 py-2.5"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{p.opponent}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(p.match_date + "T12:00:00").toLocaleDateString(
+                            "es-AR",
+                            { day: "2-digit", month: "2-digit", year: "2-digit" }
+                          )}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="font-semibold text-sm tabular-nums">
+                          ${Number(p.amount).toLocaleString("es-AR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </p>
+                        <Badge
+                          variant={p.status === "paid" ? "secondary" : "destructive"}
+                          className={`mt-1 text-[10px] ${p.status === "paid" ? "bg-green-100 text-green-700" : ""}`}
+                        >
+                          {p.status === "paid" ? "Pagado" : "Pendiente"}
+                        </Badge>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
           )}
@@ -202,17 +236,18 @@ export default async function PlayerDetailPage({ params }: PageProps) {
         <section>
           <h2 className="text-xl font-semibold mb-4">Stats por Torneo</h2>
           <Card>
-            <CardContent className="pt-6">
-              <div className="overflow-x-auto">
-                <Table className="min-w-[400px]">
+            <CardContent className="pt-6 px-3 sm:px-6">
+              {/* ── Desktop ── */}
+              <div className="hidden sm:block">
+                <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Torneo</TableHead>
                       <TableHead className="text-center">PJ</TableHead>
                       <TableHead className="text-center">Goles</TableHead>
                       <TableHead className="text-center">Asist.</TableHead>
-                      <TableHead className="hidden sm:table-cell text-center">🟨</TableHead>
-                      <TableHead className="hidden sm:table-cell text-center">🟥</TableHead>
+                      <TableHead className="text-center">🟨</TableHead>
+                      <TableHead className="text-center">🟥</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -229,10 +264,10 @@ export default async function PlayerDetailPage({ params }: PageProps) {
                           {ts.total_goals}
                         </TableCell>
                         <TableCell className="text-center">{ts.total_assists}</TableCell>
-                        <TableCell className="hidden sm:table-cell text-center">
+                        <TableCell className="text-center">
                           {ts.total_yellow_cards > 0 ? ts.total_yellow_cards : "-"}
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell text-center">
+                        <TableCell className="text-center">
                           {ts.total_red_cards > 0 ? ts.total_red_cards : "-"}
                         </TableCell>
                       </TableRow>
@@ -240,6 +275,26 @@ export default async function PlayerDetailPage({ params }: PageProps) {
                   </TableBody>
                 </Table>
               </div>
+
+              {/* ── Mobile ── */}
+              <ul className="sm:hidden divide-y">
+                {tournamentStats.map((ts) => (
+                  <li key={ts.tournament_id} className="py-2.5">
+                    <p className="font-medium text-sm">
+                      {ts.tournament_name}{" "}
+                      <span className="text-muted-foreground font-normal">
+                        {ts.tournament_year}
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1 tabular-nums">
+                      {ts.matches_played} PJ · {ts.total_goals} goles ·{" "}
+                      {ts.total_assists} asist.
+                      {ts.total_yellow_cards > 0 && ` · 🟨 ${ts.total_yellow_cards}`}
+                      {ts.total_red_cards > 0 && ` · 🟥 ${ts.total_red_cards}`}
+                    </p>
+                  </li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
         </section>
@@ -250,13 +305,14 @@ export default async function PlayerDetailPage({ params }: PageProps) {
         <section>
           <h2 className="text-xl font-semibold mb-4">Últimos Partidos</h2>
           <Card>
-            <CardContent className="pt-6">
-              <div className="overflow-x-auto">
-                <Table className="min-w-[380px]">
+            <CardContent className="pt-6 px-3 sm:px-6">
+              {/* ── Desktop ── */}
+              <div className="hidden sm:block">
+                <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Fecha</TableHead>
-                      <TableHead className="hidden sm:table-cell">Torneo</TableHead>
+                      <TableHead>Torneo</TableHead>
                       <TableHead>Rival</TableHead>
                       <TableHead className="text-center">Resultado</TableHead>
                       <TableHead className="text-center">⚽</TableHead>
@@ -278,7 +334,7 @@ export default async function PlayerDetailPage({ params }: PageProps) {
                             )}
                           </Link>
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
+                        <TableCell className="text-sm text-muted-foreground">
                           {m.tournament_name} {m.tournament_year}
                         </TableCell>
                         <TableCell className="font-medium text-sm">
@@ -305,6 +361,56 @@ export default async function PlayerDetailPage({ params }: PageProps) {
                   </TableBody>
                 </Table>
               </div>
+
+              {/* ── Mobile ── */}
+              <ul className="sm:hidden divide-y">
+                {recentMatches.map((m) => {
+                  const contributions = [
+                    { emoji: "⚽", value: m.goals, label: "goles" },
+                    { emoji: "🎯", value: m.assists, label: "asistencias" },
+                  ].filter((c) => c.value > 0);
+
+                  return (
+                    <li key={m.match_id}>
+                      <Link
+                        href={`/matches/${m.match_id}`}
+                        className="flex items-center gap-3 py-2.5 active:bg-muted/50 transition-colors"
+                      >
+                        <Badge
+                          variant="secondary"
+                          className={`font-mono text-xs font-bold shrink-0 ${resultColor(m.result)}`}
+                        >
+                          {m.goals_for}-{m.goals_against}
+                        </Badge>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-sm truncate">{m.opponent}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {new Date(m.date + "T12:00:00").toLocaleDateString(
+                              "es-AR",
+                              { day: "2-digit", month: "2-digit", year: "2-digit" }
+                            )}{" "}
+                            · {m.tournament_name}
+                          </p>
+                        </div>
+                        {contributions.length > 0 && (
+                          <span className="flex shrink-0 items-center gap-2.5">
+                            {contributions.map((c) => (
+                              <span
+                                key={c.label}
+                                className="flex items-center gap-1 text-sm tabular-nums"
+                              >
+                                <span aria-hidden>{c.emoji}</span>
+                                <span className="font-semibold">{c.value}</span>
+                                <span className="sr-only">{c.label}</span>
+                              </span>
+                            ))}
+                          </span>
+                        )}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             </CardContent>
           </Card>
         </section>

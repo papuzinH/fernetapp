@@ -63,21 +63,24 @@ export default async function PlayersPage() {
                       {positionLabel[player.position] ?? player.position}
                     </Badge>
                   )}
-                  <div className="flex justify-center items-center gap-1 w-full mt-1 text-center flex-wrap">
-                    <div className="w-[50%] sm:w-auto">
-                      <p className="text-sm font-bold">{player.matches_played}</p>
+                  {/* 2×2 en celular, una fila de 4 desde sm: las cards son
+                      angostas en mobile y cuatro columnas dejan los números
+                      pegados. */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-1 gap-y-2 w-full mt-1 text-center">
+                    <div>
+                      <p className="text-sm font-bold tabular-nums">{player.matches_played}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">PJ</p>
                     </div>
-                    <div className="w-[50%] sm:w-auto">
-                      <p className="text-sm font-bold">{player.total_goals}</p>
+                    <div>
+                      <p className="text-sm font-bold tabular-nums">{player.total_goals}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Goles</p>
                     </div>
-                    <div className="w-[50%] sm:w-auto">
-                      <p className="text-sm font-bold">{player.total_assists}</p>
+                    <div>
+                      <p className="text-sm font-bold tabular-nums">{player.total_assists}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Asist.</p>
                     </div>
-                    <div className="w-[50%] sm:w-auto">
-                      <p className="text-sm font-bold">{player.mvp_count}</p>
+                    <div>
+                      <p className="text-sm font-bold tabular-nums">{player.mvp_count}</p>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">⭐ MVP</p>
                     </div>
                   </div>
@@ -126,22 +129,22 @@ export default async function PlayersPage() {
                         {positionLabel[player.position] ?? player.position}
                       </Badge>
                     )}
-                    <div className="grid grid-cols-4 gap-1 w-full mt-1 text-center">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-1 gap-y-2 w-full mt-1 text-center">
                       <div>
-                        <p className="text-sm font-bold">{player.matches_played}</p>
-                        <p className="text-[10px] text-muted-foreground">PJ</p>
+                        <p className="text-sm font-bold tabular-nums">{player.matches_played}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">PJ</p>
                       </div>
                       <div>
-                        <p className="text-sm font-bold">{player.total_goals}</p>
-                        <p className="text-[10px] text-muted-foreground">Goles</p>
+                        <p className="text-sm font-bold tabular-nums">{player.total_goals}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Goles</p>
                       </div>
                       <div>
-                        <p className="text-sm font-bold">{player.total_assists}</p>
-                        <p className="text-[10px] text-muted-foreground">Asist.</p>
+                        <p className="text-sm font-bold tabular-nums">{player.total_assists}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Asist.</p>
                       </div>
                       <div>
-                        <p className="text-sm font-bold">{player.mvp_count}</p>
-                        <p className="text-[10px] text-muted-foreground">⭐ MVP</p>
+                        <p className="text-sm font-bold tabular-nums">{player.mvp_count}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">⭐ MVP</p>
                       </div>
                     </div>
                   </CardContent>

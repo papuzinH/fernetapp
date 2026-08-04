@@ -257,9 +257,10 @@ export default async function MatchDetailPage({ params }: PageProps) {
           <CardHeader>
             <CardTitle className="text-xl font-serif">Estadísticas Individuales</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table className="min-w-[400px]">
+          <CardContent className="px-3 sm:px-6">
+            {/* ── Desktop ── */}
+            <div className="hidden sm:block">
+              <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Jugador</TableHead>
@@ -297,6 +298,55 @@ export default async function MatchDetailPage({ params }: PageProps) {
                 </TableBody>
               </Table>
             </div>
+
+            {/* ── Mobile ──
+                Antes esto era la misma tabla con min-w-[400px] y scroll
+                horizontal: cinco columnas donde la mayoría de las celdas son
+                un guion. Acá cada jugador muestra solo lo que efectivamente
+                hizo, y el que no sumó nada queda en segundo plano. */}
+            <ul className="sm:hidden divide-y">
+              {playerStats.map((s) => {
+                const contributions = [
+                  { emoji: "⚽", value: s.goals, label: "goles" },
+                  { emoji: "🎯", value: s.assists, label: "asistencias" },
+                  { emoji: "🟨", value: s.yellow_cards, label: "amarillas" },
+                  { emoji: "🟥", value: s.red_cards, label: "rojas" },
+                ].filter((c) => c.value > 0);
+
+                return (
+                  <li key={s.player_id}>
+                    <Link
+                      href={`/players/${s.player_id}`}
+                      className="flex items-center justify-between gap-3 py-2.5 active:bg-muted/50 transition-colors"
+                    >
+                      <span
+                        className={`text-sm truncate ${
+                          contributions.length
+                            ? "font-semibold"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {s.players?.nickname ?? "?"}
+                      </span>
+                      {contributions.length > 0 && (
+                        <span className="flex shrink-0 items-center gap-2.5">
+                          {contributions.map((c) => (
+                            <span
+                              key={c.label}
+                              className="flex items-center gap-1 text-sm tabular-nums"
+                            >
+                              <span aria-hidden>{c.emoji}</span>
+                              <span className="font-semibold">{c.value}</span>
+                              <span className="sr-only">{c.label}</span>
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
           </CardContent>
         </Card>
       )}

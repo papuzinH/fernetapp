@@ -1,16 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import Link from "next/link";
 import {
   Trophy,
   Target,
@@ -18,7 +8,6 @@ import {
   TrendingUp,
   Minus,
   TrendingDown,
-  Star,
   Award,
   Swords,
   Percent,
@@ -27,13 +16,14 @@ import {
 import { NextMatchWidget } from "@/components/next-match-widget";
 import { CurrentPositionWidget } from "@/components/current-position-widget";
 import { InstagramWidget } from "@/components/instagram-widget";
-import type { PlayerCareerStats, TeamSummary, Match } from "@/lib/supabase/types";
+import { Leaderboard } from "@/components/leaderboard";
+import {
+  RecentMatchesList,
+  type RecentMatch,
+} from "@/components/recent-matches-list";
+import type { PlayerCareerStats, TeamSummary } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
-
-type MatchWithTournament = Match & {
-  tournaments: { name: string; year: number } | null;
-};
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient();
@@ -80,7 +70,7 @@ export default async function DashboardPage() {
   const scorers = (topScorersData ?? []) as PlayerCareerStats[];
   const assisters = (topAssistersData ?? []) as PlayerCareerStats[];
   const mvps = (topMvpsData ?? []) as PlayerCareerStats[];
-  const recentMatches = (recentMatchesData ?? []) as unknown as MatchWithTournament[];
+  const recentMatches = (recentMatchesData ?? []) as unknown as RecentMatch[];
 
   return (
     <div className="container mx-auto px-3 sm:px-4 py-8 space-y-10">
@@ -170,127 +160,59 @@ export default async function DashboardPage() {
           Salón de la Fama
         </h2>
 
-        
-          {/* Top Goleadores */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-accent" />
-                Goleadores Históricos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-2 sm:px-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-8">#</TableHead>
-                    <TableHead>Jugador</TableHead>
-                    <TableHead className="text-center">PJ</TableHead>
-                    <TableHead className="text-center">Goles</TableHead>
-                    <TableHead className="text-center">Prom.</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {scorers.map((p, i) => (
-                    <TableRow key={p.player_id}>
-                      <TableCell className="font-medium">
-                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Link href={`/players/${p.player_id}`} className="hover:underline hover:text-accent">
-                            {p.nickname}
-                          </Link>
-                          {i === 0 && (
-                            <Badge variant="default" className="text-[10px]">
-                              Goleador Histórico
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {p.matches_played}
-                      </TableCell>
-                      <TableCell className="text-center font-bold">
-                        {p.total_goals}
-                      </TableCell>
-                      <TableCell className="text-center text-muted-foreground">
-                        {p.goals_per_match}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {scorers.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                        No hay datos de goleadores aún. Cargá partidos desde el panel Admin.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+        {/* Top Goleadores */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-accent" />
+              Goleadores Históricos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-3 sm:px-6">
+            <Leaderboard
+              primaryLabel="Goles"
+              topBadge="Goleador Histórico"
+              emptyMessage="No hay datos de goleadores aún. Cargá partidos desde el panel Admin."
+              items={scorers.map((p) => ({
+                id: p.player_id,
+                nickname: p.nickname,
+                avatar_url: p.avatar_url,
+                primary: p.total_goals,
+                secondary: [
+                  { label: "PJ", value: p.matches_played },
+                  { label: "Prom.", value: p.goals_per_match },
+                ],
+              }))}
+            />
+          </CardContent>
+        </Card>
 
-          {/* Top Asistidores */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Handshake className="h-5 w-5 text-accent" />
-                Asistidores Históricos
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-2 sm:px-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-8">#</TableHead>
-                    <TableHead>Jugador</TableHead>
-                    <TableHead className="text-center">PJ</TableHead>
-                    <TableHead className="text-center">Asist.</TableHead>
-                    <TableHead className="text-center">Sit. Gol</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {assisters.map((p, i) => (
-                    <TableRow key={p.player_id}>
-                      <TableCell className="font-medium">
-                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Link href={`/players/${p.player_id}`} className="hover:underline hover:text-accent">
-                            {p.nickname}
-                          </Link>
-                          {i === 0 && (
-                            <Badge variant="default" className="text-[10px]">
-                              Asistidor Histórico
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {p.matches_played}
-                      </TableCell>
-                      <TableCell className="text-center font-bold">
-                        {p.total_assists}
-                      </TableCell>
-                      <TableCell className="text-center text-muted-foreground">
-                        {p.goal_contributions}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {assisters.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                        No hay datos de asistidores aún. Cargá partidos desde el panel Admin.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-       
+        {/* Top Asistidores */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Handshake className="h-5 w-5 text-accent" />
+              Asistidores Históricos
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-3 sm:px-6">
+            <Leaderboard
+              primaryLabel="Asist."
+              topBadge="Asistidor Histórico"
+              emptyMessage="No hay datos de asistidores aún. Cargá partidos desde el panel Admin."
+              items={assisters.map((p) => ({
+                id: p.player_id,
+                nickname: p.nickname,
+                avatar_url: p.avatar_url,
+                primary: p.total_assists,
+                secondary: [
+                  { label: "PJ", value: p.matches_played },
+                  { label: "G+A", value: p.goal_contributions },
+                ],
+              }))}
+            />
+          </CardContent>
+        </Card>
 
         {/* Top MVPs */}
         {mvps.length > 0 && (
@@ -301,44 +223,19 @@ export default async function DashboardPage() {
                 Más Valiosos
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-2 sm:px-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-8">#</TableHead>
-                    <TableHead>Jugador</TableHead>
-                    <TableHead className="text-center">PJ</TableHead>
-                    <TableHead className="text-center">⭐ MVP</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mvps.map((p, i) => (
-                    <TableRow key={p.player_id}>
-                      <TableCell className="font-medium">
-                        {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Link href={`/players/${p.player_id}`} className="hover:underline hover:text-accent">
-                            {p.nickname}
-                          </Link>
-                          {i === 0 && (
-                            <Badge variant="default" className="text-[10px]">
-                              Más Valioso
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {p.matches_played}
-                      </TableCell>
-                      <TableCell className="text-center font-bold">
-                        {p.mvp_count}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <CardContent className="px-3 sm:px-6">
+              <Leaderboard
+                primaryLabel="MVP"
+                topBadge="Más Valioso"
+                emptyMessage="Todavía no hay MVPs votados."
+                items={mvps.map((p) => ({
+                  id: p.player_id,
+                  nickname: p.nickname,
+                  avatar_url: p.avatar_url,
+                  primary: p.mvp_count,
+                  secondary: [{ label: "PJ", value: p.matches_played }],
+                }))}
+              />
             </CardContent>
           </Card>
         )}
@@ -350,95 +247,8 @@ export default async function DashboardPage() {
           Últimos Partidos
         </h2>
         <Card>
-          <CardContent className="px-2 sm:px-6 pt-6">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Torneo</TableHead>
-                  <TableHead>Rival</TableHead>
-                  <TableHead className="text-center">Resultado</TableHead>
-                  <TableHead className="text-center">MVP</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentMatches?.map((m) => {
-                  const resultColor =
-                    m.result === "V"
-                      ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
-                      : m.result === "E"
-                        ? "text-amber-400 bg-amber-500/10 border-amber-500/20"
-                        : "text-red-400 bg-red-500/10 border-red-500/20";
-                  const tournament = m.tournaments as unknown as {
-                    name: string;
-                    year: number;
-                  } | null;
-                  return (
-                    <TableRow key={m.id} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell>
-                        <Link href={`/matches/${m.id}`} className="block">
-                          {new Date(m.date + "T12:00:00").toLocaleDateString("es-AR", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/matches/${m.id}`} className="block">
-                          {tournament
-                            ? `${tournament.name} ${tournament.year}`
-                            : "-"}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <Link href={`/matches/${m.id}`} className="block">
-                          {m.opponent}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Link href={`/matches/${m.id}`}>
-                          <Badge
-                            variant="secondary"
-                            className={`font-mono font-bold ${resultColor}`}
-                          >
-                            {m.goals_for} - {m.goals_against}
-                          </Badge>
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {(() => {
-                          const updated = new Date(m.updated_at);
-                          const deadline = new Date(updated.getTime() + 24 * 60 * 60 * 1000);
-                          const isVotingOpen = m.status === "completed" && new Date() <= deadline;
-                          if (isVotingOpen) {
-                            return (
-                              <Link href={`/matches/${m.id}/mvp`}>
-                                <Badge variant="outline" className="gap-1 cursor-pointer hover:bg-accent/10 text-yellow-600 border-yellow-300">
-                                  <Star className="h-3 w-3" />
-                                  Votar
-                                </Badge>
-                              </Link>
-                            );
-                          }
-                          return <span className="text-muted-foreground">—</span>;
-                        })()}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {(!recentMatches || recentMatches.length === 0) && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="text-center text-muted-foreground py-8"
-                    >
-                      No hay partidos registrados aún.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+          <CardContent className="px-3 sm:px-6 pt-6">
+            <RecentMatchesList matches={recentMatches} />
           </CardContent>
         </Card>
 
