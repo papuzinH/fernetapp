@@ -47,3 +47,7 @@ next-env.d.ts
 /public/worker-*.js.map
 /public/fallback-*.js
 /public/fallback-*.js.map
+
+# Supabase CLI: estado local del link (project-ref, versiones del stack remoto).
+# Las migraciones sí se versionan; esto no.
+supabase/.temp/

@@ -307,14 +307,98 @@ export type Database = {
         Row: {
           player_id: string;
           nickname: string;
+          full_name: string | null;
+          position: string | null;
+          is_active: boolean;
+          avatar_url: string | null;
           tournament_id: string;
           tournament_name: string;
           tournament_year: number;
           matches_played: number;
           total_goals: number;
           total_assists: number;
+          goal_contributions: number;
+          goals_per_match: number;
           total_yellow_cards: number;
           total_red_cards: number;
+          mvp_count: number;
+        };
+        Relationships: [];
+      };
+      v_match_mvp: {
+        Row: {
+          match_id: string;
+          player_id: string;
+          vote_count: number;
+        };
+        Relationships: [];
+      };
+      v_player_impact: {
+        Row: {
+          player_id: string;
+          nickname: string;
+          full_name: string | null;
+          position: string | null;
+          is_active: boolean;
+          avatar_url: string | null;
+          matches_played: number;
+          wins: number;
+          draws: number;
+          losses: number;
+          win_percentage: number;
+          points_percentage: number;
+          team_goals_for: number;
+          team_goals_against: number;
+          team_goal_difference: number;
+          avg_team_goals_for: number;
+          avg_team_goals_against: number;
+        };
+        Relationships: [];
+      };
+      v_opponent_record: {
+        Row: {
+          opponent_key: string;
+          opponent: string;
+          total_matches: number;
+          wins: number;
+          draws: number;
+          losses: number;
+          win_percentage: number;
+          total_goals_for: number;
+          total_goals_against: number;
+          goal_difference: number;
+          last_played: string;
+        };
+        Relationships: [];
+      };
+      v_team_season_evolution: {
+        Row: {
+          season_year: number;
+          total_matches: number;
+          wins: number;
+          draws: number;
+          losses: number;
+          win_percentage: number;
+          total_goals_for: number;
+          total_goals_against: number;
+          goal_difference: number;
+          avg_goals_for: number;
+          avg_goals_against: number;
+        };
+        Relationships: [];
+      };
+      v_team_streaks: {
+        Row: {
+          // Todo nullable: la view devuelve una fila de NULLs si no hay partidos
+          current_streak_result: string | null;
+          current_streak_length: number | null;
+          current_streak_since: string | null;
+          best_win_streak: number | null;
+          best_win_streak_from: string | null;
+          best_win_streak_to: string | null;
+          best_unbeaten_streak: number | null;
+          best_unbeaten_streak_from: string | null;
+          best_unbeaten_streak_to: string | null;
         };
         Relationships: [];
       };
@@ -386,3 +470,8 @@ export type MvpVote = Database["public"]["Tables"]["mvp_votes"]["Row"];
 export type MvpVoteInsert = Database["public"]["Tables"]["mvp_votes"]["Insert"];
 export type PushSubscription = Database["public"]["Tables"]["push_subscriptions"]["Row"];
 export type PlayerDebtSummary = Database["public"]["Views"]["v_player_debt_summary"]["Row"];
+export type PlayerTournamentStats = Database["public"]["Views"]["v_player_tournament_stats"]["Row"];
+export type PlayerImpact = Database["public"]["Views"]["v_player_impact"]["Row"];
+export type OpponentRecord = Database["public"]["Views"]["v_opponent_record"]["Row"];
+export type TeamSeasonEvolution = Database["public"]["Views"]["v_team_season_evolution"]["Row"];
+export type TeamStreaks = Database["public"]["Views"]["v_team_streaks"]["Row"];

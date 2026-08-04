@@ -4,8 +4,8 @@ import type { Database } from "@/lib/supabase/types";
 export type PlayerCareerStats =
   Database["public"]["Views"]["v_player_career_stats"]["Row"];
 
-export type PlayerTournamentStats =
-  Database["public"]["Views"]["v_player_tournament_stats"]["Row"];
+import type { PlayerTournamentStats } from "@/lib/supabase/types";
+export type { PlayerTournamentStats };
 
 export type PlayerRecentMatch = {
   match_id: string;
@@ -87,7 +87,9 @@ export async function getPlayerRecentMatches(
     )
     .eq("player_id", playerId)
     .eq("played", true)
-    .order("created_at", { ascending: false })
+    // Por fecha del partido, no por created_at de la stat: si se carga un
+    // partido viejo después de uno nuevo, el orden de carga miente.
+    .order("date", { referencedTable: "matches", ascending: false })
     .limit(limit);
 
   if (error || !data) return [];

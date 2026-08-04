@@ -86,6 +86,28 @@
   --sidebar-accent-foreground: oklch(0.13 0.04 260);
   --sidebar-border: oklch(0.9 0.005 260);
   --sidebar-ring: oklch(0.60 0.16 55);
+
+  /* ── Paleta de gráficos (página /stats) ──
+     Valores elegidos con el validador de dataviz, no a ojo: cada par pasa banda
+     de luminosidad, piso de croma, separación en daltonismo y contraste contra
+     su superficie. Los steps de dark NO son un flip automático de los de light;
+     están validados aparte contra el fondo near-black.
+
+     Se declaran como CSS vars a propósito: Recharts las escribe tal cual en los
+     atributos SVG y el navegador resuelve el tema, así que no hace falta leer el
+     theme en JS ni arriesgar un mismatch de hidratación.
+
+     Categóricas — dos series de la MISMA escala (goles a favor / en contra). */
+  --fcg-chart-gf: #B8770B;   /* dorado de la casa */
+  --fcg-chart-ga: #1F6FA8;   /* azul frío, bien separado en hue */
+  /* Divergentes — polos de un mismo eje (diferencia de gol) */
+  --fcg-chart-win: #0B7F5C;
+  --fcg-chart-loss: #C2352A;
+  /* Neutro del punto medio: el empate no es un tercer color, es el cero */
+  --fcg-chart-draw: oklch(0.5 0.03 260);
+  /* Grilla y ejes, deliberadamente recesivos */
+  --fcg-chart-grid: oklch(0.13 0.04 260 / 12%);
+  --fcg-chart-axis: oklch(0.5 0.03 260);
 }
 
 .dark {
@@ -123,6 +145,17 @@
   --sidebar-accent-foreground: oklch(0.95 0.005 80);
   --sidebar-border: oklch(1 0 0 / 8%);
   --sidebar-ring: oklch(0.60 0.16 55);
+
+  /* Paleta de gráficos — steps propios del modo oscuro, validados contra
+     #0A0A0B. Son más claros que los de light porque la banda de luminosidad
+     útil se corre hacia arriba cuando el fondo es near-black. */
+  --fcg-chart-gf: #C58128;
+  --fcg-chart-ga: #3A86BE;
+  --fcg-chart-win: #0FA378;
+  --fcg-chart-loss: #DE4436;
+  --fcg-chart-draw: oklch(0.60 0.02 260);
+  --fcg-chart-grid: oklch(1 0 0 / 8%);
+  --fcg-chart-axis: oklch(0.60 0.02 260);
 }
 
 @layer base {

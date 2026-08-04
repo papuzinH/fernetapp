@@ -11,6 +11,7 @@ import {
   Users,
   CalendarDays,
   Trophy,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ const navLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/matches", label: "Partidos", icon: CalendarDays },
   { href: "/players", label: "Jugadores", icon: Users },
+  { href: "/stats", label: "Stats", icon: BarChart3 },
   { href: "/posiciones", label: "Posiciones", icon: Trophy },
   { href: "/admin", label: "Admin", icon: Shield },
 ];
