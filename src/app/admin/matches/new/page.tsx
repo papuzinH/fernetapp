@@ -1,22 +1,25 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { MatchForm } from "@/components/forms/match-form";
-import type { Tournament, Player } from "@/lib/supabase/types";
+import type { Tournament } from "@/lib/supabase/types";
+import type { SelectablePlayer } from "@/components/forms/roster-picker";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewMatchPage() {
   const supabase = await createServerSupabaseClient();
 
-  const { data: tournaments } = await supabase
-    .from("tournaments")
-    .select("*")
-    .order("year", { ascending: false });
-
-  const { data: players } = await supabase
-    .from("players")
-    .select("*")
-    .eq("is_active", true)
-    .order("nickname");
+  const [tournamentsRes, playersRes] = await Promise.all([
+    supabase.from("tournaments").select("*").order("year", { ascending: false }),
+    // Ordenados por qué tan probable es que hayan jugado: primero los que
+    // vienen jugando, no los que empiezan con A.
+    supabase
+      .from("v_player_selection_order")
+      .select("player_id, nickname")
+      .eq("is_active", true)
+      .order("recent_appearances", { ascending: false })
+      .order("total_appearances", { ascending: false })
+      .order("nickname"),
+  ]);
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -28,8 +31,8 @@ export default async function NewMatchPage() {
       </div>
 
       <MatchForm
-        tournaments={(tournaments ?? []) as Tournament[]}
-        players={(players ?? []) as Player[]}
+        tournaments={(tournamentsRes.data ?? []) as Tournament[]}
+        players={(playersRes.data ?? []) as SelectablePlayer[]}
       />
     </div>
   );
