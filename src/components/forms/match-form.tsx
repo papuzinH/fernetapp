@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { matchSchema, type MatchFormValues } from "@/lib/schemas/match";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,14 @@ export function MatchForm({
 
   useFieldArray({ control: form.control, name: "player_stats" });
 
-  const playerStats = form.watch("player_stats");
+  // `useWatch` y no `form.watch`: al marcar un jugador se escribe con
+  // `setValue("player_stats.N.played")`, y esa escritura MUTA el array in situ
+  // (createFormControl: `set(_formValues, name, value)`). `form.watch` devuelve
+  // ese mismo array —`{ ..._formValues }` clona el objeto raíz, no el array—,
+  // así que la dependencia de los useMemo de abajo conservaba su identidad y
+  // `selectedIds` quedaba congelado: el chip no se movía y no había error.
+  // `useWatch` entrega el valor del payload clonado, con identidad nueva.
+  const playerStats = useWatch({ control: form.control, name: "player_stats" });
   const matchStatus = form.watch("status");
 
   const selectedIds = useMemo(
