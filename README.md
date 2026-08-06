@@ -133,12 +133,14 @@ curl -i -X GET "https://graph.facebook.com/v18.0/oauth/access_token?grant_type=f
 
 **En PowerShell:**
 ```powershell
-$appId = "4285867254893280"
-$appSecret = "b2a6475e067ce45fe7530a0c17254e53"
-$shortToken = "EAA85ZBTtISuABQ79ZA0u3qO45zmUaFXGQKziCX2quvZBAoJjnX6UfMCeEhiPoCkmmfkiuUfp6vowHrwgCSATM2568oO6e9HMk8SCGlUwXPNGNX5LkUlPZAG5x47lUgd9jSHTwIDa6ZCzEjKFXbUFgpeGZAVNVgtuPgRcEWf9FxgK5JSaFIVLl5taIunRK5jBGsdk4RhZAO2VdHuKOEIqhtbewXdMkxsvkdlU3c5HiJhJLqueXyGvQZDZD"
+$appId = "{APP_ID}"
+$appSecret = "{APP_SECRET}"
+$shortToken = "{SHORT_LIVED_TOKEN}"
 $url = "https://graph.facebook.com/v18.0/oauth/access_token?grant_type=fb_exchange_token&client_id=$appId&client_secret=$appSecret&fb_exchange_token=$shortToken"
 Invoke-RestMethod -Uri $url
 ```
+
+> ⚠️ Nunca pegar credenciales reales en este archivo: está versionado y el repo es público.
 
 El token resultante dura **60 días**.
 
@@ -148,7 +150,7 @@ El token resultante dura **60 días**.
 
 **En PowerShell:**
 ```powershell
-$token = "EAA85ZBTtISuABQy1WkLZBrA9naJSLhizDZAHcJnnWbTDJbiXNCq98cZCsKNYZCXrqkZA6JZAZCVdeGbrR3M34MQ437g8S5Yjvi5dVx8vHXQAyTUfZCorLkwexPw6CRRHXCZAEZBO6stdxlnAS5b9xoZA0EZB2lWORySXcRS7x7hoXfOP9EtZBC0omk5qssIVFXVQxZAtrEJRYO8e4KZCHm0igxPl"
+$token = "{LONG_LIVED_TOKEN}"
 
 # 1. Obtener tu Facebook Page ID
 $pages = Invoke-RestMethod -Uri "https://graph.facebook.com/v18.0/me/accounts?access_token=$token"
