@@ -3,50 +3,34 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { matchSchema, type MatchFormValues } from "@/lib/schemas/match";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createMatch, updateMatch } from "@/app/admin/matches/actions";
-import type { Tournament, Player, Match, MatchPlayerStats } from "@/lib/supabase/types";
-import { useState, useMemo } from "react";
-import { WhatsAppParser } from "@/components/whatsapp-parser";
+import type { Match, MatchPlayerStats, Tournament } from "@/lib/supabase/types";
+import { useEffect, useMemo, useState } from "react";
+import { MatchDetailsFields } from "@/components/forms/match-details-fields";
+import { RosterPicker, type SelectablePlayer } from "@/components/forms/roster-picker";
+import { PlayerStatsRows } from "@/components/forms/player-stats-rows";
+import { SaveWarningsDialog } from "@/components/forms/save-warnings-dialog";
+
+/** Pago existente del partido, para advertir si se toca uno ya saldado. */
+export interface ExistingPayment {
+  player_id: string;
+  amount: number;
+  status: string;
+}
 
 interface MatchFormProps {
   tournaments: Tournament[];
-  players: Player[];
-  // For editing
+  /** Ya ordenados por apariciones recientes (v_player_selection_order). */
+  players: SelectablePlayer[];
   existingMatch?: Match;
   existingStats?: MatchPlayerStats[];
+  existingPayments?: ExistingPayment[];
 }
 
 export function MatchForm({
@@ -54,16 +38,18 @@ export function MatchForm({
   players,
   existingMatch,
   existingStats,
+  existingPayments = [],
 }: MatchFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [goalsForTouched, setGoalsForTouched] = useState(!!existingMatch);
+  const [pendingWarnings, setPendingWarnings] = useState<string[] | null>(null);
   const isEditing = !!existingMatch;
 
-  // Build default player stats from players list
   const defaultPlayerStats = players.map((p) => {
-    const existing = existingStats?.find((s) => s.player_id === p.id);
+    const existing = existingStats?.find((s) => s.player_id === p.player_id);
     return {
-      player_id: p.id,
+      player_id: p.player_id,
       nickname: p.nickname,
       played: existing?.played ?? false,
       goals: existing?.goals ?? 0,
@@ -95,41 +81,99 @@ export function MatchForm({
     },
   });
 
-  const { fields } = useFieldArray({
-    control: form.control,
-    name: "player_stats",
-  });
+  useFieldArray({ control: form.control, name: "player_stats" });
 
-  const goalsFor = form.watch("goals_for");
-  const goalsAgainst = form.watch("goals_against");
   const playerStats = form.watch("player_stats");
   const matchStatus = form.watch("status");
 
-  const resultPreview = useMemo(() => {
-    const gf = Number(goalsFor) || 0;
-    const ga = Number(goalsAgainst) || 0;
-    if (gf > ga) return { label: "VICTORIA", color: "bg-green-100 text-green-800" };
-    if (gf === ga) return { label: "EMPATE", color: "bg-yellow-100 text-yellow-800" };
-    return { label: "DERROTA", color: "bg-red-100 text-red-800" };
-  }, [goalsFor, goalsAgainst]);
+  const selectedIds = useMemo(
+    () => (playerStats ?? []).filter((ps) => ps.played).map((ps) => ps.player_id),
+    [playerStats]
+  );
 
-  // Sum of individual goals vs team goals_for
-  const totalPlayerGoals = useMemo(() => {
-    return (playerStats ?? []).reduce(
-      (sum, ps) => sum + (ps.played ? Number(ps.goals) || 0 : 0),
-      0
+  const statsRows = useMemo(
+    () =>
+      (playerStats ?? [])
+        .map((ps, index) => ({ index, nickname: ps.nickname, played: ps.played }))
+        .filter((row) => row.played),
+    [playerStats]
+  );
+
+  const totalPlayerGoals = useMemo(
+    () =>
+      (playerStats ?? []).reduce(
+        (sum, ps) => sum + (ps.played ? Number(ps.goals) || 0 : 0),
+        0
+      ),
+    [playerStats]
+  );
+
+  // El marcador sigue a la suma de goles individuales hasta que se lo edite
+  // a mano. Va por la suscripción de react-hook-form y no por un effect que
+  // escriba en el render: el callback corre fuera del ciclo de renderizado.
+  useEffect(() => {
+    if (goalsForTouched) return;
+    const subscription = form.watch((values, { name }) => {
+      if (!name?.startsWith("player_stats")) return;
+      const sum = (values.player_stats ?? []).reduce(
+        (acc, ps) => acc + (ps?.played ? Number(ps.goals) || 0 : 0),
+        0
+      );
+      if (Number(values.goals_for) !== sum) {
+        form.setValue("goals_for", sum, { shouldValidate: false });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, goalsForTouched]);
+
+  function togglePlayer(playerId: string) {
+    const stats = form.getValues("player_stats") ?? [];
+    const index = stats.findIndex((ps) => ps.player_id === playerId);
+    if (index === -1) return;
+    // No se borran los goles al desmarcar: hacen falta para poder avisar en
+    // el diálogo qué datos se pierden al guardar.
+    form.setValue(`player_stats.${index}.played`, !stats[index].played);
+  }
+
+  /** Qué datos se van a perder al guardar. Vacío = guardar directo. */
+  function collectWarnings(data: MatchFormValues): string[] {
+    if (data.status === "scheduled") return [];
+    const warnings: string[] = [];
+
+    for (const ps of data.player_stats ?? []) {
+      if (ps.played) continue;
+      const cargadas: string[] = [];
+      if (ps.goals > 0) cargadas.push(`${ps.goals} ${ps.goals === 1 ? "gol" : "goles"}`);
+      if (ps.assists > 0)
+        cargadas.push(`${ps.assists} ${ps.assists === 1 ? "asistencia" : "asistencias"}`);
+      if (ps.yellow_cards > 0) cargadas.push(`${ps.yellow_cards} 🟨`);
+      if (ps.red_cards > 0) cargadas.push(`${ps.red_cards} 🟥`);
+      if (cargadas.length > 0) {
+        warnings.push(
+          `${ps.nickname} no está en el partido y tenía ${cargadas.join(", ")} cargadas`
+        );
+      }
+    }
+
+    const rosterIds = new Set(
+      (data.player_stats ?? []).filter((ps) => ps.played).map((ps) => ps.player_id)
     );
-  }, [playerStats]);
+    for (const payment of existingPayments) {
+      if (payment.status !== "paid" || rosterIds.has(payment.player_id)) continue;
+      const nickname =
+        (data.player_stats ?? []).find((ps) => ps.player_id === payment.player_id)
+          ?.nickname ?? "Un jugador";
+      warnings.push(
+        `${nickname} sale del partido y su pago de $${Number(payment.amount).toLocaleString("es-AR")} estaba saldado`
+      );
+    }
 
-  const goalsMismatch =
-    totalPlayerGoals > 0 &&
-    Number(goalsFor) > 0 &&
-    totalPlayerGoals !== Number(goalsFor);
+    return warnings;
+  }
 
-  async function onSubmit(data: MatchFormValues) {
+  async function save(data: MatchFormValues) {
     setIsSubmitting(true);
     try {
-      // Para partidos programados, limpiar stats que no aplican
       const submitData =
         data.status === "scheduled"
           ? {
@@ -169,571 +213,63 @@ export function MatchForm({
     }
   }
 
+  async function onSubmit(data: MatchFormValues) {
+    const warnings = collectWarnings(data);
+    if (warnings.length > 0) {
+      setPendingWarnings(warnings);
+      return;
+    }
+    await save(data);
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Sección A — Datos del partido */}
         <Card>
           <CardHeader>
             <CardTitle className="font-serif">Datos del Partido</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Status + basic fields */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Status */}
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Estado</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="scheduled">Programado</SelectItem>
-                        <SelectItem value="completed">Completado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Fecha */}
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Fecha</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Torneo */}
-              <FormField
-                control={form.control}
-                name="tournament_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Torneo</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar torneo" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {tournaments.map((t) => (
-                          <SelectItem key={t.id} value={t.id}>
-                            {t.name} {t.year}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Rival */}
-              <FormField
-                control={form.control}
-                name="opponent"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Rival</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ej: Scarlett FC" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Phase 2: DateTime + Location (shown for scheduled matches) */}
-            {matchStatus === "scheduled" && (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 rounded-lg border border-dashed border-blue-300 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
-                <FormField
-                  control={form.control}
-                  name="datetime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fecha y Hora</FormLabel>
-                      <FormControl>
-                        <Input type="datetime-local" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="location_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Lugar</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: Cancha Diaz" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="location_address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Dirección</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: Av. San Martín 1234" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Resultado (only for completed matches) */}
-            {matchStatus === "completed" && <div className="flex flex-wrap items-end gap-4">
-              <FormField
-                control={form.control}
-                name="goals_for"
-                render={({ field }) => (
-                  <FormItem className="w-28">
-                    <FormLabel>Goles FCG</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        className="text-center text-lg font-bold"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="pb-2 text-xl font-bold text-muted-foreground">
-                —
-              </div>
-              <FormField
-                control={form.control}
-                name="goals_against"
-                render={({ field }) => (
-                  <FormItem className="w-28">
-                    <FormLabel>Goles Rival</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        className="text-center text-lg font-bold"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {matchStatus === "completed" && (
-                <Badge className={`mb-2 ${resultPreview.color}`}>
-                  {resultPreview.label} {goalsFor}-{goalsAgainst}
-                </Badge>
-              )}
-            </div>}
-
-            {matchStatus === "completed" && (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <FormField
-                control={form.control}
-                name="yellow_cards"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>🟨 Amarillas</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={0} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="red_cards"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>🟥 Rojas</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={0} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="video_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL del Video (opcional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://youtube.com/..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="pitch_price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Precio Cancha ($)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        placeholder="Ej: 25000"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            )}
-
-            {matchStatus === "completed" && (
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notas (opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ej: No se presentaron, suspendido por lluvia..."
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          <CardContent>
+            <MatchDetailsFields
+              form={form}
+              tournaments={tournaments}
+              matchStatus={matchStatus}
+              totalPlayerGoals={totalPlayerGoals}
+              goalsForTouched={goalsForTouched}
+              onGoalsForManualChange={(raw) => setGoalsForTouched(raw !== "")}
             />
-            )}
           </CardContent>
         </Card>
 
-        {/* Sección B — Stats individuales */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between flex-wrap gap-2">
-              <span className="flex items-center gap-2 font-serif">
-                Stats de Jugadores
-                <WhatsAppParser
-                  players={players.filter((p) => p.is_active).map((p) => ({
-                    player_id: p.id,
-                    nickname: p.nickname,
-                    full_name: p.full_name,
-                  }))}
-                  onApply={(ids) => {
-                    const stats = form.getValues("player_stats") ?? [];
-                    stats.forEach((_, idx) => {
-                      form.setValue(
-                        `player_stats.${idx}.played`,
-                        ids.includes(stats[idx].player_id)
-                      );
-                    });
-                  }}
-                />
-              </span>
-              {goalsMismatch && (
-                <Badge variant="destructive" className="text-xs">
-                  ⚠️ Goles individuales ({totalPlayerGoals}) ≠ Goles del equipo (
-                  {goalsFor})
-                </Badge>
-              )}
+            <CardTitle className="font-serif">
+              {matchStatus === "scheduled" ? "Quiénes van" : "Quiénes jugaron"}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Vista desktop — tabla */}
-            <div className="hidden sm:block overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-10">
-                      {matchStatus === "scheduled" ? "Va" : "Jugó"}
-                    </TableHead>
-                    <TableHead>Jugador</TableHead>
-                    {matchStatus === "completed" && (
-                      <>
-                        <TableHead className="w-20 text-center">Goles</TableHead>
-                        <TableHead className="w-20 text-center">Asist.</TableHead>
-                        <TableHead className="w-20 text-center">🟨</TableHead>
-                        <TableHead className="w-20 text-center">🟥</TableHead>
-                      </>
-                    )}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {fields.map((field, index) => {
-                    const isPlayed = form.watch(
-                      `player_stats.${index}.played`
-                    );
-                    return (
-                      <TableRow
-                        key={field.id}
-                        className={isPlayed ? "" : "opacity-40"}
-                      >
-                        <TableCell>
-                          <FormField
-                            control={form.control}
-                            name={`player_stats.${index}.played`}
-                            render={({ field: checkField }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <Checkbox
-                                    checked={checkField.value}
-                                    onCheckedChange={checkField.onChange}
-                                  />
-                                </FormControl>
-                              </FormItem>
-                            )}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Label className="font-medium">
-                            {field.nickname}
-                          </Label>
-                        </TableCell>
-                        {matchStatus === "completed" && (
-                          <>
-                            <TableCell>
-                              <FormField
-                                control={form.control}
-                                name={`player_stats.${index}.goals`}
-                                render={({ field: f }) => (
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      disabled={!isPlayed}
-                                      className="w-16 text-center"
-                                      {...f}
-                                    />
-                                  </FormControl>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <FormField
-                                control={form.control}
-                                name={`player_stats.${index}.assists`}
-                                render={({ field: f }) => (
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      disabled={!isPlayed}
-                                      className="w-16 text-center"
-                                      {...f}
-                                    />
-                                  </FormControl>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <FormField
-                                control={form.control}
-                                name={`player_stats.${index}.yellow_cards`}
-                                render={({ field: f }) => (
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={2}
-                                      disabled={!isPlayed}
-                                      className="w-16 text-center"
-                                      {...f}
-                                    />
-                                  </FormControl>
-                                )}
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <FormField
-                                control={form.control}
-                                name={`player_stats.${index}.red_cards`}
-                                render={({ field: f }) => (
-                                  <FormControl>
-                                    <Input
-                                      type="number"
-                                      min={0}
-                                      max={1}
-                                      disabled={!isPlayed}
-                                      className="w-16 text-center"
-                                      {...f}
-                                    />
-                                  </FormControl>
-                                )}
-                              />
-                            </TableCell>
-                          </>
-                        )}
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Vista mobile — cards por jugador */}
-            <div className="sm:hidden space-y-3">
-              {fields.map((field, index) => {
-                const isPlayed = form.watch(`player_stats.${index}.played`);
-                return (
-                  <div
-                    key={field.id}
-                    className={`rounded-lg border p-3 transition-opacity ${
-                      isPlayed ? "" : "opacity-50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <Label className="font-semibold text-base">
-                        {field.nickname}
-                      </Label>
-                      <FormField
-                        control={form.control}
-                        name={`player_stats.${index}.played`}
-                        render={({ field: checkField }) => (
-                          <FormItem className="flex items-center gap-2 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={checkField.value}
-                                onCheckedChange={checkField.onChange}
-                              />
-                            </FormControl>
-                            <Label className="text-sm text-muted-foreground font-normal cursor-pointer">
-                              {matchStatus === "scheduled" ? "Va" : "Jugó"}
-                            </Label>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    {matchStatus === "completed" && <div className="grid grid-cols-4 gap-2 mt-3">
-                      <FormField
-                        control={form.control}
-                        name={`player_stats.${index}.goals`}
-                        render={({ field: f }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs text-muted-foreground">⚽ Goles</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min={0}
-                                disabled={!isPlayed}
-                                className="text-center text-sm h-9"
-                                {...f}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`player_stats.${index}.assists`}
-                        render={({ field: f }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs text-muted-foreground">🎯 Asist.</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min={0}
-                                disabled={!isPlayed}
-                                className="text-center text-sm h-9"
-                                {...f}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`player_stats.${index}.yellow_cards`}
-                        render={({ field: f }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs text-muted-foreground">🟨 Amar.</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min={0}
-                                max={2}
-                                disabled={!isPlayed}
-                                className="text-center text-sm h-9"
-                                {...f}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`player_stats.${index}.red_cards`}
-                        render={({ field: f }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs text-muted-foreground">🟥 Roja</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                min={0}
-                                max={1}
-                                disabled={!isPlayed}
-                                className="text-center text-sm h-9"
-                                {...f}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>}
-                  </div>
-                );
-              })}
-            </div>
+            <RosterPicker
+              players={players}
+              selectedIds={selectedIds}
+              onToggle={togglePlayer}
+              playedLabel={matchStatus === "scheduled" ? "Van" : "Jugaron"}
+            />
           </CardContent>
         </Card>
 
-        {/* Submit */}
+        {matchStatus === "completed" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-serif">Stats de Jugadores</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PlayerStatsRows form={form} rows={statsRows} />
+            </CardContent>
+          </Card>
+        )}
+
         <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-          >
+          <Button type="button" variant="outline" onClick={() => router.back()}>
             Cancelar
           </Button>
           <Button type="submit" disabled={isSubmitting} className="gap-2">
@@ -746,6 +282,16 @@ export function MatchForm({
           </Button>
         </div>
       </form>
+
+      <SaveWarningsDialog
+        open={pendingWarnings !== null}
+        warnings={pendingWarnings ?? []}
+        onCancel={() => setPendingWarnings(null)}
+        onConfirm={() => {
+          setPendingWarnings(null);
+          void save(form.getValues());
+        }}
+      />
     </Form>
   );
 }

@@ -217,24 +217,64 @@ export async function updateMatch(
         };
       }
 
-      // Si transiciona a completed y tiene pitch_price, crear pagos
+      // Reconciliar los pagos con el roster que quedó.
+      //
+      // Antes esto corría solo en la transición scheduled → completed y hacía
+      // delete de todos los pagos + insert. Con eso, editar el roster de un
+      // partido ya cerrado dejaba el split con la lista vieja; y aplicar el
+      // delete a cualquier edición devolvería a pendiente un pago ya saldado.
+      // Por eso se reconcilia en vez de rehacer: el que sigue conserva su
+      // estado, el que entra arranca pendiente y el que sale se borra.
       const effectivePrice = pitch_price ?? prevMatch?.pitch_price;
-      const wasScheduled = prevMatch?.status === "scheduled";
       const isNowCompleted = parsed.data.status === "completed";
 
-      if (wasScheduled && isNowCompleted && effectivePrice && effectivePrice > 0) {
-        // Limpiar pagos previos si los hubiera
-        await supabase.from("payments").delete().eq("match_id", matchId);
+      if (isNowCompleted && effectivePrice && effectivePrice > 0) {
+        const costPerPlayer =
+          Math.round((effectivePrice / statsToInsert.length) * 100) / 100;
+        const rosterIds = statsToInsert.map((ps) => ps.player_id);
 
-        const playersWhoPlayed = statsToInsert.length;
-        const costPerPlayer = Math.round((effectivePrice / playersWhoPlayed) * 100) / 100;
-        const paymentsToInsert = statsToInsert.map((ps) => ({
-          match_id: matchId,
-          player_id: ps.player_id,
-          amount: costPerPlayer,
-          status: "pending" as const,
-        }));
-        await supabase.from("payments").insert(paymentsToInsert);
+        const { data: prevPayments } = await supabase
+          .from("payments")
+          .select("player_id")
+          .eq("match_id", matchId);
+
+        const existingIds = new Set(
+          ((prevPayments ?? []) as { player_id: string }[]).map((p) => p.player_id)
+        );
+
+        // Los que ya no están en el roster pierden su pago.
+        const removedIds = [...existingIds].filter((id) => !rosterIds.includes(id));
+        if (removedIds.length > 0) {
+          await supabase
+            .from("payments")
+            .delete()
+            .eq("match_id", matchId)
+            .in("player_id", removedIds);
+        }
+
+        // Los que entraron arrancan pendientes.
+        const newPayments = rosterIds
+          .filter((id) => !existingIds.has(id))
+          .map((player_id) => ({
+            match_id: matchId,
+            player_id,
+            amount: costPerPlayer,
+            status: "pending" as const,
+          }));
+        if (newPayments.length > 0) {
+          await supabase.from("payments").insert(newPayments);
+        }
+
+        // Los que siguen conservan su status; solo cambia el monto, porque
+        // el precio de la cancha se reparte entre otra cantidad de jugadores.
+        const keptIds = rosterIds.filter((id) => existingIds.has(id));
+        if (keptIds.length > 0) {
+          await supabase
+            .from("payments")
+            .update({ amount: costPerPlayer })
+            .eq("match_id", matchId)
+            .in("player_id", keptIds);
+        }
       }
     }
   }

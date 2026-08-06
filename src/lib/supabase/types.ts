@@ -402,6 +402,19 @@ export type Database = {
         };
         Relationships: [];
       };
+      v_player_selection_order: {
+        Row: {
+          player_id: string;
+          nickname: string;
+          full_name: string | null;
+          position: "ARQ" | "DEF" | "MED" | "DEL" | null;
+          avatar_url: string | null;
+          is_active: boolean;
+          recent_appearances: number;
+          total_appearances: number;
+        };
+        Relationships: [];
+      };
       v_team_summary: {
         Row: {
           total_matches: number;
@@ -475,3 +488,5 @@ export type PlayerImpact = Database["public"]["Views"]["v_player_impact"]["Row"]
 export type OpponentRecord = Database["public"]["Views"]["v_opponent_record"]["Row"];
 export type TeamSeasonEvolution = Database["public"]["Views"]["v_team_season_evolution"]["Row"];
 export type TeamStreaks = Database["public"]["Views"]["v_team_streaks"]["Row"];
+export type PlayerSelectionOrder =
+  Database["public"]["Views"]["v_player_selection_order"]["Row"];
