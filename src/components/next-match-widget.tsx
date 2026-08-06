@@ -14,7 +14,6 @@ type MatchWithTournament = Match & { tournaments: { name: string } | null };
 export async function NextMatchWidget() {
   const supabase = await createServerSupabaseClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: nextMatch } = await supabase
     .from("matches")
     .select("*, tournaments(name)")

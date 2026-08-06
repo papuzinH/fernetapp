@@ -15,6 +15,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { Match } from "@/lib/supabase/types";
+
+type MatchWithTournament = Match & { tournaments: { name: string } | null };
 
 export const dynamic = "force-dynamic";
 
@@ -26,12 +29,11 @@ export default async function MatchPaymentsPage({
   const { id: matchId } = await params;
   const supabase = await createServerSupabaseClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: match } = await supabase
     .from("matches")
     .select("*, tournaments(name)")
     .eq("id", matchId)
-    .single() as { data: any };
+    .single() as { data: MatchWithTournament | null };
 
   if (!match) notFound();
 
@@ -50,8 +52,7 @@ export default async function MatchPaymentsPage({
         </Link>
         <div>
           <h2 className="text-2xl font-serif font-bold">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-            Pagos: vs {match.opponent} ({(match as any).tournaments?.name})
+            Pagos: vs {match.opponent} ({match.tournaments?.name})
           </h2>
           <p className="text-muted-foreground text-sm">
             {match.date} &middot; Cancha: $

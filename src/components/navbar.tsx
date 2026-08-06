@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { PushNotificationOptIn } from "@/components/push-notification-opt-in";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,11 +29,23 @@ const navLinks = [
   { href: "/admin", label: "Admin", icon: Shield },
 ];
 
+// Detect scroll for solid background. Subscribing to the browser instead of
+// mirroring it into state keeps the first paint consistent with the server,
+// which renders the transparent variant.
+function subscribeToScroll(onScroll: () => void) {
+  window.addEventListener("scroll", onScroll, { passive: true });
+  return () => window.removeEventListener("scroll", onScroll);
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { theme, setTheme } = useTheme();
-  const [scrolled, setScrolled] = useState(false);
+  const scrolled = useSyncExternalStore(
+    subscribeToScroll,
+    () => window.scrollY > 8,
+    () => false,
+  );
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -43,21 +55,13 @@ export function Navbar() {
     };
   }, [mobileOpen]);
 
-  // Close mobile menu on route change
-  useEffect(() => {
+  // Close mobile menu on route change, adjusting during render so the closed
+  // menu is part of the same commit as the new route.
+  const [renderedPathname, setRenderedPathname] = useState(pathname);
+  if (pathname !== renderedPathname) {
+    setRenderedPathname(pathname);
     setMobileOpen(false);
-  }, [pathname]);
-
-  // Detect scroll for solid background
-  const handleScroll = useCallback(() => {
-    setScrolled(window.scrollY > 8);
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  }
 
   return (
     <>
