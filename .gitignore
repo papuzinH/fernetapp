@@ -51,3 +51,6 @@ next-env.d.ts
 # Supabase CLI: estado local del link (project-ref, versiones del stack remoto).
 # Las migraciones sí se versionan; esto no.
 supabase/.temp/
+
+# Restos de herramientas locales (Claude Code deja un archivo por sesión)
+tmpclaude-*
